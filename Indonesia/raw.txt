@@ -1,0 +1,6 @@
+Actilyse - Remove ; from packaging in json file
+dosage filter by- tab,cap,syr,inhaler,raphiler,turbuhaler,caplet,MDI,tuberculinunit,powd,cream,CFU
+format_original filter by - '-'
+Seretide - Remove SPF15 from packaging in json file
+Maxcef - Remove multiple entries from csv
+Simfed - Remove &nbsp; from material

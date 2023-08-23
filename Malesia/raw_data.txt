@@ -1,0 +1,4 @@
+dosage fileter by - tab, FCtab,Clean,oral susp,cap,Bodywash,foam,syringe,combipack,accuhaler,billion CFU,anti-,gel,tuber
+format_original filter by - -FC tab,(,T
+Ciflox Eye Drop - Remove s from form (Ciflox Eye Drops)
+Redoxon C+Zn+D - Remove 2g from dosage
