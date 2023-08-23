@@ -251,7 +251,7 @@ def extract_dos_con_mat(d,con,mat,std_mat,dosage_match,con_match,dosage_match_in
         std_mat=std_mat.replace(format_match[0].strip(),'')
         current_std_mat=std_mat
     return d,con,current_mat,current_std_mat,format_org,std_format
-with open('MIMS.csv','w') as file:
+with open('MIMS Indonesia.csv','w') as file:
     writer = csv.writer(file)
     writer.writerow(["brand","manufacturer","cims_class","material","standard_material","format_original","standard_format","concentration","dosage","uom","atc_code","atc_detail","amount","mims_class"])
 def read_text_file(file):  
@@ -639,7 +639,7 @@ def read_text_file(file):
                                 amount.append(std_amount)
                                 format_original.append(format_org)
                                 formater.append(std_format)
-    file = open('MIMS.csv', 'a', newline ='')
+    file = open('MIMS Indonesia.csv', 'a', newline ='')
     with file:
         write = csv.writer(file)
         write.writerows(zip(brand,manufacturer,cimsClass,material,std_material,format_original,formater,concentration,dosage,uom,atcCode,atcDetail,amount,mimsClass))      
