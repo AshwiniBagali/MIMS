@@ -13,7 +13,7 @@ def get_forms(products):
     for product in products:
         forms_list.append(product['form'])
     return forms_list
-def append_keywords_from_form_to_keywords_list(forms_list,drug_name): #Append keywords from form to keywords to map and remove it form material
+def append_keywords_from_form_to_keywords_list(forms_list,drug_name): #Append keywords from form and drugName to keywords to map material
     local_keywords_list = copy.deepcopy(keywords_list)
     
     for current_form in forms_list:
@@ -28,6 +28,36 @@ def append_keywords_from_form_to_keywords_list(forms_list,drug_name): #Append ke
                 local_keywords_list.append(word.lower())
     print("keywords list for current line item : ",local_keywords_list)
     return local_keywords_list
+def get_material(activeIngredients):#
+    string_in_bold = []
+    # cleaned_active_ingredients = []
+    active_ingredients = []
+    activeIngredientsList = activeIngredients
+    find_string_to_split = re.findall(r'\.\s*<strong>', activeIngredients[0])
+    if(find_string_to_split):
+        # Split the string using the matches
+        split_active_ingredients = re.split(r'\.\s*<strong>', activeIngredients[0])
+        # Combine the split parts with the matches to get the desired result
+        activeIngredientsList = [split_active_ingredients[0]] + [match + split for match, split in zip(find_string_to_split, split_active_ingredients[1:])]
+        
+        print(activeIngredientsList)
+    for item in activeIngredientsList:
+        bold_words = re.findall(r'\.?\s*<strong>(.*?)</strong>', item)
+        if(bold_words):
+            string_in_bold.extend(bold_words)
+            # cleaned_active_ingredients.append(re.sub(r'\.?\s*<strong>.*?</strong>', '', item))
+            item = item.replace('<strong>','')
+            item = item.replace('</strong>','')
+            item = item.strip('.')
+            item = item.strip()
+            item = item.replace('&amp;','&')
+            item = item.replace(',','')
+            item = item.replace(';','')
+            active_ingredients.append(item)
+        else:
+            string_in_bold = ['']
+            active_ingredients = activeIngredients
+    return string_in_bold,active_ingredients
 def get_sub_string_from_mat(activeIngredientsList,local_keywords_list): #Get starting substring from material to be mapped with form and then remove
         mat_to_map_list = []
         material_list = []
@@ -329,7 +359,7 @@ def extract_dos_con_format_from_mat(d,con,mat,std_mat,dosage_match,con_match,dos
     if(len(d)==0 and len(con)==0):
         d=''
         con=''
-    format_match=re.findall('\sunit dose vial\s|\sPolyamp inj\s|\ssugar-coated caplet\s|\sForte dry syr\s|\sPaed tab\s|\ssoln for inj\s|\sForte FC caplet\s|\sforte cap\s|\spaed drops\s|\spowd for oral liqd\s|\s powd for oral soln\s|\smouthwash\s|\srectal oint\s|\srectal cream\s|\sDaily Facial Moisturizer\s|\sInjection\s|\sForte gel\s|\sdose inhaler\s|\sdose vaccine\s|\sforte dry syr\s|\sForte dry syr\s|\sForte syr\s|\sforte syr\s|\sdry syr\s|\sinfant drops\s|\soral drops\s|\sOral drops\s|\soral liqd\s|\soral gel\s|\ssoftgel\s|\seye gel\s|\sEye Drops\s|\seye drops\s|\sEye Ointment\s|\stab Dry\s|\seffervescent tab\s|\sEffervescent tab\s|\schewtab\s|\sactive tab\s|\scaptab\s|\sDispersible tab\s|\sXR-FC tab\s|\sPlus tab\s|\ssugar-coated tab\s|\sFC tab\s|\schewable tab\s|\sforte tab\s|\sForte tab\s|\sLutevision Extra tab\s|\sAdult tab\s|\sadult tab\s|\smite tab\s|\sfilm-coated tab\s|\ssoftcap\s|\sForte dry susp\s|\sForte oral susp\s|\soral soln\s|\ssoft cap\s|\sForte susp\s|\spaed susp\s|\sforte liqd\s|\sForte cap\s|\sForte caplet\s|\sforte caplet\s|\sfilm-coated caplet\s|\sFC caplet\s|\sdose: Powd for inj\s|\soral susp\s|\ssachet\s|\sSachet\s|\scaplet\s|\sCaplet\s|\stab\s|\sTab\s|\scap\s|\sCap\s|\ssyrup\s|\ssyr\s|\sSyr\s|\sdrops\s|\ssusp\s|\sliqd\s|\spowd\s|\sdrag\s|\sbottle\s|\sForte\s|\sinj\s|\scream\s|\sCream\s|\soint\s|\smouthspray\s|\stoothpaste\s|\sshampoo\s|\sDiskus\s|\sgel\s|\sSerum\s|\slotion\s|\sLotion\s|\sdose\s|\ssoln\s|\sspray\s|\svial\s|\sMDV\s',mat, re.DOTALL)
+    format_match=re.findall('\sunit dose vial\s|\sPolyamp inj\s|\ssugar-coated caplet\s|\sForte dry syr\s|\sPaed tab\s|\ssoln for inj\s|\sForte FC caplet\s|\sforte cap\s|\spaed drops\s|\spowd for oral liqd\s|\s powd for oral soln\s|\smouthwash\s|\srectal oint\s|\srectal cream\s|\sDaily Facial Moisturizer\s|\sInjection\s|\sForte gel\s|\sdose inhaler\s|\sdose vaccine\s|\sforte dry syr\s|\sForte dry syr\s|\sForte syr\s|\sforte syr\s|\sdry syr\s|\sinfant drops\s|\soral drops\s|\sOral drops\s|\soral liqd\s|\soral gel\s|\ssoftgel\s|\seye gel\s|\sEye Drops\s|\seye drops\s|\sEye Ointment\s|\stab Dry\s|\seffervescent tab\s|\sEffervescent tab\s|\schewtab\s|\sactive tab\s|\scaptab\s|\sDispersible tab\s|\sXR-FC tab\s|\sPlus tab\s|\ssugar-coated tab\s|\sFC tab\s|\schewable tab\s|\sforte tab\s|\sForte tab\s|\sLutevision Extra tab\s|\sAdult tab\s|\sadult tab\s|\smite tab\s|\sfilm-coated tab\s|\ssoftcap\s|\sForte dry susp\s|\sForte oral susp\s|\soral soln\s|\ssoft cap\s|\sForte susp\s|\spaed susp\s|\sforte liqd\s|\sForte cap\s|\sForte caplet\s|\sforte caplet\s|\sfilm-coated caplet\s|\sFC caplet\s|\sdose: Powd for inj\s|\soral susp\s|\ssachet\s|\sSachet\s|\scaplet\s|\sCaplet\s|\stab\s|\sTab\s|\scap\s|\sCap\s|\ssyrup\s|\ssyr\s|\sSyr\s|\sdrops\s|\ssusp\s|\sliqd\s|\spowd\s|\sdrag\s|\sbottle\s|\sForte\s|\sinj\s|\scream\s|\sCream\s|\soint\s|\smouthspray\s|\stoothpaste\s|\sshampoo\s|\sDiskus\s|\sgel\s|\sSerum\s|\slotion\s|\sLotion\s|\sdose\s|\ssoln\s|\sspray\s|\svial\s|\sMDV\s'," "+material_to_map+" ", re.DOTALL)
     if(len(format_match)!=0 and len(format_org)==0):
         format_org=format_match[0].strip()
         std_format=search(format_org) 
@@ -337,6 +367,7 @@ def extract_dos_con_format_from_mat(d,con,mat,std_mat,dosage_match,con_match,dos
 #         material_to_map = re.escape(material_to_map)#This ensures that any special characters are treated as literal characters in the regular expression pattern.
 #         std_mat = re.sub(material_to_map,'',std_mat ,flags = re.IGNORECASE) #Ignore case while removing raw_string in material
         std_mat = std_mat.replace(material_to_map,'')
+        std_mat = std_mat.strip()
         print("Removed raw string from material :",std_mat,"raw material:",material_to_map)
     dosage_match_in_mat = re.findall('[^\w](\d+\.?\d*\/?\d*\.?\d*\s?u\/?mL\s?\+?\s?\d*\.?\d*\s?mcg\/?mL|\d+\.?\d*\/?\d*\.?\d*\s?u\/?mL|\d+\.?\d*\/?\d*\.?\d*\s?g\/?\-?\d*\.?\d*\s?mL|\d+\.?\d*\/?\d*\.?\d*\s?mcg\/?\-?\d*\.?\d*\s?dose|\d+\.?\d*\s?u\/?\-?\d*\.?\d*\s?u|\d+\.?\d*\/?\-?\d*\.?\d*\s?u|\d+\.?\d*\s?g\/?\-?\d*\.?\d*\s?g|\d+\.?\d*\/?\-?\d*\.?\d*\s?g|\d+\.?\d*\s?mcg\/?\-?\d*\.?\d*\s?mcg|\d+\.?\d*\/?\-?\d*\.?\d*\s?mcg|\d+\.?\d*\s?IU\/?\-?\d*\.?\d*\s?IU|\d+\.?\d*\s?IU\/?mL|\d+\.?\d*\/?\-?\d*\.?\d*\s?IU|\d+\.?\d*\s?mL\/?\-?\d*\.?\d*\s?mL|\d+\.?\d*\/?\-?\d*\.?\d*\s?mL|\d+\.?\d*\/?\-?\d*\.?\d*\s?ml|\smL\s|\d+\.?\d*\s?mg(?:\/\d+\.?\d*\s?mg)*|\d+\.?\d*\/?\-?\d*\.?\d*\s?\/?\-?\d*\.?\d*\s?mg|\d+\.?\d*\s?iu\/?\-?\d*\.?\d*\s?iu|\d+\.?\d*\/?\-?\d*\.?\d*\s?iu|\d+\.?\d*\s?KIU\/?\-?\d*\.?\d*\s?KIU|\d+\.?\d*\/?\-?\d*\.?\d*\s?KIU|\d+\.?\d*\s?U\/?\-?\d*\.?\d*\s?U|\d+\.?\d*\/?\-?\d*\.?\d*\s?U)[^\w]'," " +std_mat+ " ", re.DOTALL)
     con_match_in_mat = re.findall('\d+\.?\d*\s?%',std_mat, re.DOTALL)
@@ -397,7 +428,6 @@ def read_text_file(file):
         concentration=[]
         format_original=[]
         l=[]
-        activeIngredientsList=[]
         std_material=[]
         mimsClass=[]
         amount=[]
@@ -422,6 +452,7 @@ def read_text_file(file):
             std_uom=''
             std_amount=''
             drug_name=[]
+            activeIngredientsList=[]
             dos_match_from_form=''
             products= item['details']['products']
             activeIngredients=item['details']['activeIngredients']
@@ -441,12 +472,10 @@ def read_text_file(file):
             if(len(products)==0):
                 for drug in drug_name:
                     if(len(activeIngredients)!=0):
-                        activeIngredientsList=activeIngredients
-                        if(activeIngredients[0].startswith('Per ')):
-                            per='Per '
-                            activeIngredientsList =  [per+e for e in activeIngredients[0].split(per) if e]
+                        activeIngredientsList = activeIngredients
                         local_keywords_list = append_keywords_from_form_to_keywords_list([],drug_name)
-                        mat_to_map_list,material_list = get_sub_string_from_mat(activeIngredientsList, local_keywords_list)
+                        mat_to_map_list,material_list = get_material(activeIngredients)
+                        activeIngredientsList = material_list
                         if(len(activeIngredientsList) > 1 and len(drug_name) > 1):#map drugName to material
                             list_of_dicts = map_drug_name_to_mat(drug_name,mat_to_map_list,material_list)
                             # for i,entry in enumerate(activeIngredientsList):
@@ -560,10 +589,9 @@ def read_text_file(file):
                 forms_list = get_forms(products)
                 local_keywords_list = append_keywords_from_form_to_keywords_list(forms_list,drug_name)
                 if( len(activeIngredients)!=0):
-                    if(activeIngredients[0].startswith('Per ')):
-                        per='Per '
-                        activeIngredientsList =  [per+e for e in activeIngredients[0].split(per) if e]
-                    mat_to_map_list,material_list = get_sub_string_from_mat(activeIngredientsList,local_keywords_list)
+                    activeIngredientsList = activeIngredients
+                    mat_to_map_list,material_list = get_material(activeIngredients)
+                    activeIngredientsList = material_list
                     if(len(material_list) != len(forms_list) and len(activeIngredientsList)>1):
                             print("drugname : ",drug_name,"material list : ",material_list,"forms list : ",forms_list)
                             continue
@@ -686,11 +714,11 @@ def read_text_file(file):
                             if(len(d) == 0 and len(con) == 0):
                                 d,con = get_dosage_from_packaging(dos_match_from_packaging,con_match_from_packaging,d,con,i)
                             if(len(activeIngredients)!=0):
-                                    activeIngredientsList=activeIngredients
-                                    if(activeIngredients[0].startswith('Per ')):
-                                        per='Per '
-                                        activeIngredientsList =  [per+e for e in activeIngredients[0].split(per) if e]
-                                        # for entry in activeIngredientsList:
+                                    # activeIngredientsList=activeIngredients
+                                    # if(activeIngredients[0].startswith('Per ')):
+                                    #     per='Per '
+                                    #     activeIngredientsList =  [per+e for e in activeIngredients[0].split(per) if e]
+                                    #     # for entry in activeIngredientsList:
                                     if(len(activeIngredientsList) > 1 or len(drug_name) > 1):
                                         matched_material,material_to_map = get_matching_material(org_form,drug,list_of_dicts)
                                         print("matched_material :",matched_material,"material to map form : " ,material_to_map)
@@ -725,7 +753,6 @@ def read_text_file(file):
                                             formater.append(std_format)
                                             dosage.append(d)
                                             concentration.append(con)
-                                            current_mat = current_mat.replace(',','')
                                             material.append(current_mat)
                                             std_material.append(current_std_mat)
                                         else:
