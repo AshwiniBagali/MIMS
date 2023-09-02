@@ -41,21 +41,21 @@ def get_material(activeIngredients):#
     #     activeIngredientsList = [split_active_ingredients[0]] + [match + split for match, split in zip(find_string_to_split, split_active_ingredients[1:])]
         
     #     print(activeIngredientsList)
-    for item in activeIngredients:
-        bold_words = re.findall(r'\.?\s*<strong>(.*?)</strong>', item)
-        item = item.strip('.')
-        item = item.strip()
-        item = item.replace('&amp;','&')
-        item = item.replace(',','')
-        item = item.replace(';','')
-        if(bold_words):
-            string_in_bold.extend(bold_words)
-            # cleaned_active_ingredients.append(re.sub(r'\.?\s*<strong>.*?</strong>', '', item))
-            item = item.replace('<strong>','')
-            item = item.replace('</strong>','')
-            active_ingredients.append(item)
-        else:
-            string_in_bold = ['']
+    if(len(activeIngredients)!= 0):
+        for item in activeIngredients:
+            bold_words = re.findall(r'\.?\s*<strong>(.*?)</strong>', item)
+            item = item.strip('.')
+            item = item.strip()
+            item = item.replace('&amp;','&')
+            item = item.replace(',','')
+            item = item.replace(';','')
+            if(len(bold_words)!=0):
+                string_in_bold.append(bold_words[0])
+                # cleaned_active_ingredients.append(re.sub(r'\.?\s*<strong>.*?</strong>', '', item))
+                item = item.replace('<strong>','')
+                item = item.replace('</strong>','')
+            else:
+                string_in_bold = ['']
             active_ingredients.append(item)
     return string_in_bold,active_ingredients
 def get_sub_string_from_mat(activeIngredientsList,local_keywords_list): #Get starting substring from material to be mapped with form and then remove
@@ -325,9 +325,12 @@ def extract_dos_con_format_from_mat(d,con,mat,std_mat,dosage_match,con_match,dos
                 if(m.find('/')==-1):
                     result+=m+"/"
                     result=result.replace(' ','')
-            d=result[:-1]
-            d=d.strip('.')
-            result=''
+                else:
+                    result+=m
+            result=result.replace(' ','')
+            result=result.strip('/')
+            result=result.strip('.')
+            d=result
             for m in con_match:
                 result+=m+"/"
                 result=result.replace(' ','')
@@ -343,8 +346,12 @@ def extract_dos_con_format_from_mat(d,con,mat,std_mat,dosage_match,con_match,dos
                 if(m.find('/')==-1):
                     result+=m+"/"
                     result=result.replace(' ','')
-            d=result[:-1]
-            d=d.strip('.')
+                else:
+                    result+=m
+            result=result.replace(' ','')
+            result=result.strip('/')
+            result=result.strip('.')
+            d=result
             con=''
         elif(len(con_match)!=0):
             result=''
@@ -469,14 +476,12 @@ def read_text_file(file):
                 drug_name = (drugName.split('/'))
             else:
                 drug_name.append(drugName)
+            mat_to_map_list,material_list = get_material(activeIngredients)
             if(len(products)==0):
                 for drug in drug_name:
-                    if(len(activeIngredients)!=0):
-                        activeIngredientsList = activeIngredients
+                    if(len(material_list)!=0):
                         local_keywords_list = append_keywords_from_form_to_keywords_list([],drug_name)
-                        mat_to_map_list,material_list = get_material(activeIngredients)
-                        activeIngredientsList = material_list
-                        if(len(activeIngredientsList) > 1 and len(drug_name) > 1):#map drugName to material
+                        if(len(material_list) > 1 and len(drug_name) > 1):#map drugName to material
                             list_of_dicts = map_drug_name_to_mat(drug_name,mat_to_map_list,material_list)
                             # for i,entry in enumerate(activeIngredientsList):
                             matched_material,material_to_map = get_matching_material('',drug,list_of_dicts)
@@ -505,17 +510,23 @@ def read_text_file(file):
                                 std_format = ''
                                 std_mat = matched_material
                                 mat = matched_material
-                                d,con,current_mat,current_std_mat,format_org,std_format=extract_dos_con_format_from_mat(d,con,mat,std_mat,dosage_match,con_match,dosage_match_in_mat,con_match_in_mat,material_to_map,format_org,std_format,format_match)
+                                dos = ""
+                                c =""
+                                dos,c,current_mat,current_std_mat,format_org,std_format = extract_dos_con_format_from_mat(d,con,mat,std_mat,dosage_match,con_match,dosage_match_in_mat,con_match_in_mat,material_to_map,format_org,std_format,format_match)
+                                dos = dos.replace(' ','')
+                                dos = dos.replace(',','')
+                                c = c.replace(' ','')
+                                c = c.replace(',','')
+                                dosage.append(dos)
+                                concentration.append(c)
                                 format_original.append(format_org)
                                 formater.append(std_format)
-                                dosage.append(d)
-                                concentration.append(con)
                                 material.append(current_mat)
                                 std_material.append(current_std_mat)
                             else:
                                 print("match not found when form is empty")
                         else:
-                                for i,entry in enumerate(activeIngredientsList):
+                                for e,entry in enumerate(activeIngredientsList):
                                     brand.append(drug)        
                                     manufacturer.append(manf)
                                     cimsClass.append(cims_class)
@@ -538,21 +549,22 @@ def read_text_file(file):
                                     con = ''
                                     format_org = ''
                                     std_format = ''
-                                    entry = entry.replace(',','')
-                                    entry = entry.replace(';','')
-                                    entry = entry.replace('&amp;','&')
-                                    entry = entry.strip()
-                                    entry = entry.strip('.')
                                     std_mat = entry
                                     mat = entry
-                                    d,con,current_mat,current_std_mat,format_org,std_format = extract_dos_con_format_from_mat(d,con,mat,std_mat,dosage_match,con_match,dosage_match_in_mat,con_match_in_mat,mat_to_map_list[i],format_org,std_format,format_match)
+                                    dos = ""
+                                    c = ""
+                                    dos,c,current_mat,current_std_mat,format_org,std_format = extract_dos_con_format_from_mat(d,con,mat,std_mat,dosage_match,con_match,dosage_match_in_mat,con_match_in_mat,mat_to_map_list[e],format_org,std_format,format_match)
+                                    dos = dos.replace(' ','')
+                                    dos = dos.replace(',','')
+                                    c = c.replace(' ','')
+                                    c = c.replace(',','')
+                                    dosage.append(dos)
+                                    concentration.append(c)
                                     format_original.append(format_org)
                                     formater.append(std_format)
-                                    dosage.append(d)
-                                    concentration.append(con)
                                     material.append(current_mat)
                                     std_material.append(current_std_mat)
-                    elif(len(activeIngredients)==0):
+                    elif(len(material_list)==0):
                             if(drugClassification=='Generic'):
                                     current_mat = drug
                                     current_std_mat = drug
@@ -588,16 +600,14 @@ def read_text_file(file):
             elif(len(products)!=0): 
                 forms_list = get_forms(products)
                 local_keywords_list = append_keywords_from_form_to_keywords_list(forms_list,drug_name)
-                if( len(activeIngredients)!=0):
-                    activeIngredientsList = activeIngredients
-                    mat_to_map_list,material_list = get_material(activeIngredients)
-                    activeIngredientsList = material_list
-                    if(len(material_list) != len(forms_list) and len(activeIngredientsList)>1):
+                if( len(material_list)!=0):
+                    if(len(material_list) != len(forms_list) and len(material_list)>1):
                             print("drugname : ",drug_name,"material list : ",material_list,"forms list : ",forms_list)
                             continue
-                    if(len(activeIngredientsList)>1):#map form to material in case of single or multiple drugNames
+                    if(len(material_list)>1):#map form to material in case of single or multiple drugNames
+                        print("map form to material")
                         list_of_dicts = map_form_to_mat(forms_list,mat_to_map_list,material_list,drug_name)
-                    if(len(drug_name)>1 and len(activeIngredientsList)<=1):#map drugName to form in case of single material
+                    if(len(drug_name)>1 and len(material_list)<=1):#map drugName to form in case of single material
                         list_of_dicts = map_drug_name_to_form(drug_name,forms_list,mat_to_map_list,material_list)
                 for drug in drug_name:        
                     print("current drug is:",drug)
@@ -713,13 +723,13 @@ def read_text_file(file):
                                 std_format=''
                             if(len(d) == 0 and len(con) == 0):
                                 d,con = get_dosage_from_packaging(dos_match_from_packaging,con_match_from_packaging,d,con,i)
-                            if(len(activeIngredients)!=0):
-                                    # activeIngredientsList=activeIngredients
-                                    # if(activeIngredients[0].startswith('Per ')):
+                            if(len(material_list)!=0):
+                                    # material_list=material_list
+                                    # if(material_list[0].startswith('Per ')):
                                     #     per='Per '
-                                    #     activeIngredientsList =  [per+e for e in activeIngredients[0].split(per) if e]
-                                    #     # for entry in activeIngredientsList:
-                                    if(len(activeIngredientsList) > 1 or len(drug_name) > 1):
+                                    #     material_list =  [per+e for e in material_list[0].split(per) if e]
+                                    #     # for entry in material_list:
+                                    if(len(material_list) > 1 or len(drug_name) > 1):
                                         matched_material,material_to_map = get_matching_material(org_form,drug,list_of_dicts)
                                         print("matched_material :",matched_material,"material to map form : " ,material_to_map)
                                         if(len(matched_material)!=0):
@@ -744,60 +754,59 @@ def read_text_file(file):
                                             amount.append(std_amount)
                                             mat=matched_material
                                             std_mat=matched_material
-                                            d,con,current_mat,current_std_mat,format_org,std_format = extract_dos_con_format_from_mat(d,con,mat,std_mat,dosage_match,con_match,dosage_match_in_mat,con_match_in_mat,material_to_map,format_org,std_format,format_match)
-                                            d=d.replace(' ','')
-                                            d=d.replace(',','')
-                                            con=con.replace(' ','')
-                                            con=con.replace(',','')
+                                            dos = ""
+                                            c =""
+                                            dos,c,current_mat,current_std_mat,format_org,std_format = extract_dos_con_format_from_mat(d,con,mat,std_mat,dosage_match,con_match,dosage_match_in_mat,con_match_in_mat,material_to_map,format_org,std_format,format_match)
+                                            dos = dos.replace(' ','')
+                                            dos = dos.replace(',','')
+                                            c = c.replace(' ','')
+                                            c = c.replace(',','')
+                                            dosage.append(dos)
+                                            concentration.append(c)
                                             format_original.append(format_org)
                                             formater.append(std_format)
-                                            dosage.append(d)
-                                            concentration.append(con)
                                             material.append(current_mat)
                                             std_material.append(current_std_mat)
                                         else:
                                             print("Match not found at all")
                                             break;
                                     else:
-                                        for entry in activeIngredientsList:
-                                                entry=entry.replace(',','')
-                                                entry=entry.replace(';','')
-                                                entry=entry.replace('&amp;','&')
-                                                entry=entry.strip()
-                                                entry=entry.strip('.')
-                                                brand.append(drug)        
-                                                manufacturer.append(manf)
-                                                cimsClass.append(cims_class)
-                                                mimsClass.append(mims_class)
-                                                if(len(atc_code)!=0):
-                                                    atcCode.append(atc_code)
-                                                elif(len(atc_code)==0):
-                                                    atcCode.append('')
-                                                if(len(atc)!=0):
-                                                    atc=atc.replace(';','')
-                                                    atc=atc.replace(',','')
-                                                    atc=atc.replace('  ',' ')
-                                                    atc=atc.strip('.')
-                                                    atcDetail.append(atc)
-                                                elif(len(atc)==0):
-                                                    atcDetail.append('')
-                                                std_uom=std_uom.strip()
-                                                uom.append(std_uom)
-                                                amount.append(std_amount)
-                                                mat=entry
-                                                std_mat=entry
-                                                d,con,current_mat,current_std_mat,format_org,std_format = extract_dos_con_format_from_mat(d,con,mat,std_mat,dosage_match,con_match,dosage_match_in_mat,con_match_in_mat,"",format_org,std_format,format_match)
-                                                d=d.replace(' ','')
-                                                d=d.replace(',','')
-                                                con=con.replace(' ','')
-                                                con=con.replace(',','')
-                                                dosage.append(d)
-                                                concentration.append(con)
-                                                format_original.append(format_org)
-                                                formater.append(std_format)
-                                                material.append(current_mat)
-                                                std_material.append(current_std_mat)
-                            elif(len(activeIngredients)==0):
+                                        entry = material_list[0]
+                                        brand.append(drug)        
+                                        manufacturer.append(manf)
+                                        cimsClass.append(cims_class)
+                                        mimsClass.append(mims_class)
+                                        if(len(atc_code)!=0):
+                                            atcCode.append(atc_code)
+                                        elif(len(atc_code)==0):
+                                            atcCode.append('')
+                                        if(len(atc)!=0):
+                                            atc=atc.replace(';','')
+                                            atc=atc.replace(',','')
+                                            atc=atc.replace('  ',' ')
+                                            atc=atc.strip('.')
+                                            atcDetail.append(atc)
+                                        elif(len(atc)==0):
+                                            atcDetail.append('')
+                                        std_uom=std_uom.strip()
+                                        uom.append(std_uom)
+                                        amount.append(std_amount)
+                                        mat=entry
+                                        std_mat=entry
+                                        dos = ""
+                                        c =""
+                                        dos,c,current_mat,current_std_mat,format_org,std_format = extract_dos_con_format_from_mat(d,con,mat,std_mat,dosage_match,con_match,dosage_match_in_mat,con_match_in_mat,mat_to_map_list[0],format_org,std_format,format_match)
+                                        dos = dos.replace(' ','')
+                                        dos = dos.replace(',','')
+                                        c = c.replace(' ','')
+                                        c = c.replace(',','')
+                                        dosage.append(dos)
+                                        concentration.append(c)
+                                        format_original.append(format_org)
+                                        formater.append(std_format)
+                                        material.append(current_mat)
+                                        std_material.append(current_std_mat)
+                            elif(len(material_list)==0):
                                 if(drugClassification=='Generic'):
                                     current_mat = drug
                                     current_std_mat = drug
