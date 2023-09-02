@@ -40,16 +40,16 @@ def get_material(activeIngredients):#
     string_in_bold = []
     # cleaned_active_ingredients = []
     active_ingredients = []
-    activeIngredientsList = activeIngredients
-    find_string_to_split = re.findall(r'\.\s*<strong>', activeIngredients[0])
-    if(find_string_to_split):
-        # Split the string using the matches
-        split_active_ingredients = re.split(r'\.\s*<strong>', activeIngredients[0])
-        # Combine the split parts with the matches to get the desired result
-        activeIngredientsList = [split_active_ingredients[0]] + [match + split for match, split in zip(find_string_to_split, split_active_ingredients[1:])]
+    # activeIngredientsList = activeIngredients
+    # find_string_to_split = re.findall(r'\.\s*<strong>', activeIngredients[0])
+    # if(find_string_to_split):
+    #     # Split the string using the matches
+    #     split_active_ingredients = re.split(r'\.\s*<strong>', activeIngredients[0])
+    #     # Combine the split parts with the matches to get the desired result
+    #     activeIngredientsList = [split_active_ingredients[0]] + [match + split for match, split in zip(find_string_to_split, split_active_ingredients[1:])]
         
-        print(activeIngredientsList)
-    for item in activeIngredientsList:
+    #     print(activeIngredientsList)
+    for item in activeIngredients:
         bold_words = re.findall(r'\.?\s*<strong>(.*?)</strong>', item)
         item = item.strip('.')
         item = item.strip()
@@ -61,8 +61,6 @@ def get_material(activeIngredients):#
             # cleaned_active_ingredients.append(re.sub(r'\.?\s*<strong>.*?</strong>', '', item))
             item = item.replace('<strong>','')
             item = item.replace('</strong>','')
-            item = item.strip('.')
-            item = item.strip()
             active_ingredients.append(item)
         else:
             string_in_bold = ['']
@@ -838,5 +836,4 @@ def search(form):
             return standard_format
 for file in os.listdir():
     if file.__eq__("test.jsonl"):
-        print("filename :",file)
         read_text_file(file)

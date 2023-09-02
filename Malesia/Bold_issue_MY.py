@@ -40,31 +40,31 @@ def get_material(activeIngredients):#
     string_in_bold = []
     # cleaned_active_ingredients = []
     active_ingredients = []
-    activeIngredientsList = activeIngredients
-    find_string_to_split = re.findall(r'\.\s*<strong>', activeIngredients[0])
-    if(find_string_to_split):
-        # Split the string using the matches
-        split_active_ingredients = re.split(r'\.\s*<strong>', activeIngredients[0])
-        # Combine the split parts with the matches to get the desired result
-        activeIngredientsList = [split_active_ingredients[0]] + [match + split for match, split in zip(find_string_to_split, split_active_ingredients[1:])]
+    # activeIngredientsList = activeIngredients
+    # find_string_to_split = re.findall(r'\.\s*<strong>', activeIngredients[0])
+    # if(find_string_to_split):
+    #     # Split the string using the matches
+    #     split_active_ingredients = re.split(r'\.\s*<strong>', activeIngredients[0])
+    #     # Combine the split parts with the matches to get the desired result
+    #     activeIngredientsList = [split_active_ingredients[0]] + [match + split for match, split in zip(find_string_to_split, split_active_ingredients[1:])]
         
-        print(activeIngredientsList)
-    for item in activeIngredientsList:
+    #     print(activeIngredientsList)
+    for item in activeIngredients:
         bold_words = re.findall(r'\.?\s*<strong>(.*?)</strong>', item)
+        item = item.strip('.')
+        item = item.strip()
+        item = item.replace('&amp;','&')
+        item = item.replace(',','')
+        item = item.replace(';','')
         if(bold_words):
             string_in_bold.extend(bold_words)
             # cleaned_active_ingredients.append(re.sub(r'\.?\s*<strong>.*?</strong>', '', item))
             item = item.replace('<strong>','')
             item = item.replace('</strong>','')
-            item = item.strip('.')
-            item = item.strip()
-            item = item.replace('&amp;','&')
-            item = item.replace(',','')
-            item = item.replace(';','')
             active_ingredients.append(item)
         else:
             string_in_bold = ['']
-            active_ingredients = activeIngredients
+            active_ingredients.append(item)
     return string_in_bold,active_ingredients
 def get_sub_string_from_mat(activeIngredientsList,local_keywords_list): #Get starting substring from material to be mapped with form and then remove
         mat_to_map_list = []
@@ -867,5 +867,5 @@ def search(form):
             standard_format=doc['_source']['format']
             return standard_format
 for file in os.listdir():
-    if file.__eq__("Bold.jsonl"):
+    if file.__eq__("bold_test_file.jsonl"):
         read_text_file(file)
