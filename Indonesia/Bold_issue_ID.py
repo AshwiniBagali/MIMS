@@ -49,6 +49,8 @@ def get_material(activeIngredients):#
             item = item.replace('&amp;','&')
             item = item.replace(',','')
             item = item.replace(';','')
+            item = item.replace('<sup>','^')
+            item = item.replace('</sup>','')
             if(len(bold_words)!=0):
                 string_in_bold.append(bold_words[0])
                 # cleaned_active_ingredients.append(re.sub(r'\.?\s*<strong>.*?</strong>', '', item))
