@@ -55,7 +55,7 @@ def get_material(activeIngredients):#
                 item = item.replace('<strong>','')
                 item = item.replace('</strong>','')
             else:
-                string_in_bold = ['']
+                string_in_bold.append('')
             active_ingredients.append(item)
     return string_in_bold,active_ingredients
 def get_sub_string_from_mat(activeIngredientsList,local_keywords_list): #Get starting substring from material to be mapped with form and then remove
@@ -526,7 +526,7 @@ def read_text_file(file):
                             else:
                                 print("match not found when form is empty")
                         else:
-                                for e,entry in enumerate(activeIngredientsList):
+                                for e,entry in enumerate(material_list):
                                     brand.append(drug)        
                                     manufacturer.append(manf)
                                     cimsClass.append(cims_class)
@@ -861,5 +861,5 @@ def search(form):
             standard_format = doc['_source']['format']
             return standard_format
 for file in os.listdir():
-    if file.__eq__("Bold.jsonl"):
+    if file.__eq__("common_test_file.jsonl"):
         read_text_file(file)                            

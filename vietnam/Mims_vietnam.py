@@ -51,19 +51,25 @@ def get_material(activeIngredients):#
     #     print(activeIngredientsList)
     if(len(activeIngredients)!= 0):
         for item in activeIngredients:
-            bold_words = re.findall(r'\.?\s*<strong>(.*?)</strong>', item)
+            # bold_words = re.findall(r'\.?\s*<strong>(.*?)</strong>', item)
             item = item.strip('.')
             item = item.strip()
             item = item.replace('&amp;','&')
             item = item.replace(',','')
             item = item.replace(';','')
-            if(len(bold_words)!=0):
-                string_in_bold.append(bold_words[0])
-                # cleaned_active_ingredients.append(re.sub(r'\.?\s*<strong>.*?</strong>', '', item))
-                item = item.replace('<strong>','')
-                item = item.replace('</strong>','')
+            # if(len(bold_words)!=0):
+            #     string_in_bold.append(bold_words[0])
+            #     # cleaned_active_ingredients.append(re.sub(r'\.?\s*<strong>.*?</strong>', '', item))
+            #     item = item.replace('<strong>','')
+            #     item = item.replace('</strong>','')
+            # else:
+            #     string_in_bold.append('')
+            # active_ingredients.append(item)
+            find_index = item.find(':')
+            if(find_index!=-1):
+                string_in_bold.append(item[:find_index+1])
             else:
-                string_in_bold = ['']
+                string_in_bold.append('')
             active_ingredients.append(item)
     return string_in_bold,active_ingredients
 def get_sub_string_from_mat(activeIngredientsList,local_keywords_list): #Get starting substring from material to be mapped with form and then remove
@@ -492,7 +498,7 @@ def read_text_file(file):
             mat_to_map_list,material_list = get_material(activeIngredients)
             if(len(products)==0):
                 for drug in drug_name:
-                    if(len(activeIngredients)!=0):
+                    if(len(material_list)!=0):
                         local_keywords_list = append_keywords_from_form_to_keywords_list([],drug_name)
                         if(len(material_list) > 1 and len(drug_name) > 1):#map drugName to material
                             list_of_dicts = map_drug_name_to_mat(drug_name,mat_to_map_list,material_list)
@@ -642,12 +648,11 @@ def read_text_file(file):
                             std_uom=remove_substring_in_brackets(i)
                             std_uom=std_uom.strip()
                             if(org_form.find('%')!=-1):
-                                dos_match_from_form = re.findall('[^\w](\d+\s*mg(?:\/?(?:\d*\s*mL)?)?|\d+\.?\d*\s?g|\d+\.?\d*?MIU|\d+\.?\d*\s?IU|\d+\.?\d*\s?U|\d+\.?\d*\s?mcg|\d+\.?\d*\s?mL|\d+\.?\d+/\d+\.?\d+|\b\d+\b)[^\w]',org_form, re.DOTALL)
+                                dos_match_from_form = re.findall('[^\w](\d+\s*mg(?:\/?(?:\d*\s*mL)?)?|\d+\.?\d*\s?g|\d+\.?\d*?MIU|\d+\.?\d*\s?IU|\d+\.?\d*\s?U|\d+\.?\d*\s?mcg|\d+\.?\d*\s?mL|\d+\.?\d+/\d+\.?\d+|\b\d+\b)[^\w]'," "+org_form+" ", re.DOTALL)
                                 con_match_from_form = re.findall('\d+\.?\d*\s?%',org_form, re.DOTALL)
                             else:
                                 con_match_from_form = []
-                                dos_match_from_form = re.findall('[^\w](\d+\.?\d*\s*MIU|\d+MU\/?\d*\.?\d*mL?|\d+\.?\d*\s?billion cells\/?\d+\s?mL|\d+.?\d*\/?\d*.?\d*\/?\d*.?\d*\s*mg(?:\/?(?:\d*.?\d*\s*mL)?)?|\d+.?\d*\s*g(?:\/?(?:\d*.?\d*\s*mL)?)?(?:\/?(?:\d*.?\d*\s*L)?)?|\d+\.?\d*?MIU|\d+\s*IU(?:\/?(?:\d*.?\d*\s*mL)?)?|\d+\.?\d*\s?U\/?mL|\d+.?\d*\/?\d*\s*mcg(?:\/?(?:\d*.?\d*\s*mL)?)?|\d+\.?\d*\s?mL|\d+\.?\d+/\d+\.?\d+|\d+\.?\d*/?\d+\.?\d*|\d+\.?\d*)[^\w]',org_form, re.DOTALL)
-                                print("dosage match from form : ",dos_match_from_form)
+                                dos_match_from_form = re.findall('[^\w](\d+\.?\d*\s*MIU|\d+MU\/?\d*\.?\d*mL?|\d+\.?\d*\s?billion cells\/?\d+\s?mL|\d+.?\d*\/?\d*.?\d*\/?\d*.?\d*\s*mg(?:\/?(?:\d*.?\d*\s*mL)?)?|\d+.?\d*\s*g(?:\/?(?:\d*.?\d*\s*mL)?)?(?:\/?(?:\d*.?\d*\s*L)?)?|\d+\.?\d*?MIU|\d+\s*IU(?:\/?(?:\d*.?\d*\s*mL)?)?|\d+\.?\d*\s?U\/?mL|\d+.?\d*\/?\d*\s*mcg(?:\/?(?:\d*.?\d*\s*mL)?)?|\d+\.?\d*\s?mL|\d+\.?\d+/\d+\.?\d+|\d+\.?\d*/?\d+\.?\d*|\d+\.?\d*)[^\w]'," "+org_form+" ", re.DOTALL)
                             if(len(dos_match_from_form)!=0 and len(con_match_from_form)!=0):
                                 result=''
                                 for cm in con_match_from_form:
