@@ -53,12 +53,16 @@ def get_material(activeIngredients):#
         for item in activeIngredients:
             # bold_words = re.findall(r'\.?\s*<strong>(.*?)</strong>', item)
             item = item.strip('.')
-            item = item.strip()
             item = item.replace('&amp;','&')
             item = item.replace(',','')
             item = item.replace(';','')
             item = item.replace('<sup>','^')
             item = item.replace('</sup>','')
+            item = item.replace('<em>','') 
+            item = item.replace('</em>','')
+            item = item.replace('<strong>','')
+            item = item.replace('</strong>','')
+            item = item.strip()
             # if(len(bold_words)!=0):
             #     string_in_bold.append(bold_words[0])
             #     # cleaned_active_ingredients.append(re.sub(r'\.?\s*<strong>.*?</strong>', '', item))
