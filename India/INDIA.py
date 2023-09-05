@@ -488,52 +488,6 @@ def read_text_file(file):
             if(len(products)==0):
                 # for drug in drug_name:
                     if(len(material_list)!=0):
-                        if(len(material_list) > 1 and len(drug_name) > 1):#map drugName to material
-                            for e,entry in enumerate(material_list):
-                                list_of_dicts = map_drug_name_to_mat(drug_name,mat_to_map_list,material_list)
-                                # for i,entry in enumerate(material_list):
-                                matched_material,material_to_map = get_matching_material('',drug,list_of_dicts)
-                                if(matched_material):
-                                    brand.append(drugName)        
-                                    manufacturer.append(manf)
-                                    cimsClass.append(cims_class)
-                                    mimsClass.append(mims_class)
-                                    if(len(atc_code)!=0):
-                                        atcCode.append(atc_code)
-                                    elif(len(atc_code)==0):
-                                        atcCode.append('')
-                                    if(len(atc)!=0):
-                                        atc=atc.replace(';','')
-                                        atc=atc.replace(',','')
-                                        atc=atc.replace('  ',' ')
-                                        atc=atc.strip('.')
-                                        atcDetail.append(atc)
-                                    elif(len(atc)==0):
-                                        atcDetail.append('')
-                                    uom.append('')
-                                    amount.append('')
-                                    d = ''
-                                    con = ''
-                                    format_org = ''
-                                    std_format = ''
-                                    std_mat = matched_material
-                                    mat = matched_material
-                                    dos = ""
-                                    c = ""
-                                    dos,c,current_mat,current_std_mat,format_org,std_format = extract_dos_con_format_from_mat(d,con,mat,std_mat,dosage_match,con_match,dosage_match_in_mat,con_match_in_mat,material_to_map,format_org,std_format,format_match)
-                                    dos = dos.replace(' ','')
-                                    dos = dos.replace(',','')
-                                    c = c.replace(' ','')
-                                    c = c.replace(',','')
-                                    dosage.append(dos)
-                                    concentration.append(c)
-                                    format_original.append(format_org)
-                                    formater.append(std_format)
-                                    material.append(current_mat)
-                                    std_material.append(current_std_mat)
-                                else:
-                                    print("match not found when form is empty",drugName)
-                        else:
                                 for e,entry in enumerate(material_list):
                                     brand.append(drugName)        
                                     manufacturer.append(manf)
@@ -619,18 +573,18 @@ def read_text_file(file):
                             i=i.replace(',','')
                             i=i.replace(';','')
                             form = org_form
-                            if(drugName.find('/')!=-1):
-                                drug_name=drugName.split('/')
-                                drug_match_in_form=''
-                                for d in drug_name:
-                                        if(org_form.find(d)!=-1):
-                                            drug_match_in_form=form[:len(d)]
-#                                             current_drug=d
-                                form=form.replace(drug_match_in_form,'')
-                            else:
-                                # current_drug=drugName
-                                pattern = re.compile(re.escape(drugName), re.IGNORECASE)
-                                form = pattern.sub('', form)
+#                             if(drugName.find('/')!=-1):
+#                                 drug_name=drugName.split('/')
+#                                 drug_match_in_form=''
+#                                 for d in drug_name:
+#                                         if(org_form.find(d)!=-1):
+#                                             drug_match_in_form=form[:len(d)]
+# #                                             current_drug=d
+#                                 form=form.replace(drug_match_in_form,'')
+#                             else:
+#                                 # current_drug=drugName
+                            pattern = re.compile(re.escape(drugName), re.IGNORECASE)
+                            form = pattern.sub('', form)
                             form = form.strip()
                             format_org = form
                             std_format=search(form)
@@ -685,7 +639,7 @@ def read_text_file(file):
                                     con = ''
                                 std_amount = ''
                             if(len(material_list)!=0):
-                                    if(len(material_list) > 1 or len(drug_name) > 1):
+                                    if(len(material_list) > 1):
                                         for e,entry in enumerate(material_list):
                                             match_found = mat_to_map_list[e].find(form)
                                             print("matched_material :",match_found,"material to map form : " ,mat_to_map_list)
