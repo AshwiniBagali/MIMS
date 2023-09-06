@@ -432,14 +432,11 @@ def process_drug_name(drugName):
     parts = drugName.split('/')
     first_word = parts[0].split()[0]
     drug_name = []
-    for part in parts:
-        res = ''
-        if part.isdigit():
-            first_word = parts[0].split()[0]  # Extracting the first word from the first part
-            res = first_word +" "+ part
-            drug_name.append(res)
-        else:
+    if first_word in parts[1]:
+        for part in parts:
             drug_name.append(part)
+    else:
+        drug_name.append(drugName)
     return drug_name
 with open('vietnam.csv','w') as file:
     writer = csv.writer(file)

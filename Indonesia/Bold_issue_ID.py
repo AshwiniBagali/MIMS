@@ -417,6 +417,16 @@ def extract_dos_con_format_from_mat(d,con,mat,std_mat,dosage_match,con_match,dos
         std_mat=std_mat.replace(format_match[0].strip(),'')
         current_std_mat=std_mat
     return d,con,current_mat,current_std_mat,format_org,std_format
+def process_drug_name(drugName):
+    parts = drugName.split('/')
+    first_word = parts[0].split()[0]
+    drug_name = []
+    if first_word in parts[1]:
+        for part in parts:
+            drug_name.append(part)
+    else:
+        drug_name.append(drugName)
+    return drug_name
 with open('MIMS Indonesia.csv','w') as file:
     writer = csv.writer(file)
     writer.writerow(["brand","manufacturer","cims_class","material","standard_material","format_original","standard_format","concentration","dosage","uom","atc_code","atc_detail","amount","mims_class"])
@@ -475,7 +485,7 @@ def read_text_file(file):
             drugClassification=item['drugClassification']
             print("=======================================drugName===================================",drugName)
             if(drugName.find('/')!=-1):
-                drug_name = (drugName.split('/'))
+                drug_name = process_drug_name(drugName)
             else:
                 drug_name.append(drugName)
             mat_to_map_list,material_list = get_material(activeIngredients)
