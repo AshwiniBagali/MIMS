@@ -59,14 +59,22 @@ def get_material(activeIngredients):#
             item = item.replace(';','')
             item = item.replace('<sup>','^')
             item = item.replace('</sup>','')
+            item = item.replace('<strong>','')
+            item = item.replace('</strong>','')
             if(len(bold_words)!=0):
-                string_in_bold.append(bold_words[0])
-                # cleaned_active_ingredients.append(re.sub(r'\.?\s*<strong>.*?</strong>', '', item))
-                item = item.replace('<strong>','')
-                item = item.replace('</strong>','')
+                if(bold_words[0].find('/')!=-1):
+                    split_bold = bold_words[0].split('/')
+                    append_index = item.find(split_bold[1])
+                    for i,word in enumerate(split_bold):
+                        cleaned_item = word + item[append_index+len(split_bold[1]):]
+                        active_ingredients.append(cleaned_item)
+                        string_in_bold.append(word)
+                else:
+                    string_in_bold.append(bold_words[0])
+                    active_ingredients.append(item)
             else:
                 string_in_bold.append('')
-            active_ingredients.append(item)
+                active_ingredients.append(item)
     return string_in_bold,active_ingredients
 def get_sub_string_from_mat(activeIngredientsList,local_keywords_list): #Get starting substring from material to be mapped with form and then remove
         mat_to_map_list = []
