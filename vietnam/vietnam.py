@@ -38,6 +38,12 @@ def append_keywords_from_form_to_keywords_list(forms_list,drug_name): #Append ke
                 local_keywords_list.append(word.lower())
     print("keywords list for current line item : ",local_keywords_list)
     return local_keywords_list
+def split_material(activeIngredients,drug_name):
+    string = activeIngredients[0]
+    pattern = r'(\.\s*<strong>\s*([A-Za-z]+)|\s*<strong>\s*\.\s*([A-Za-z]+)|\,\s*<strong>\s*per|\,\s*<strong>\s*Each|\.\s*<em>\s*per|\.\s*<em>\s*({})|\s*<em>\s*\.\s*({}))'.format('|'.join((drug.split()[0]) for drug in drug_name), '|'.join((drug.split()[0]) for drug in drug_name))
+    indices = [0]+[m.start()+1 for m in re.finditer(pattern, string,re.IGNORECASE)] + [None]#appending first and last items to list
+    active_ingredients_list = [string[indices[i]:indices[i+1]] for i in range(len(indices)-1)]   
+    return active_ingredients_list
 def get_material(activeIngredients,drugName):#
     string_in_bold = []
     # cleaned_active_ingredients = []
@@ -58,7 +64,7 @@ def get_material(activeIngredients,drugName):#
             regex = re.findall('\d+:\d+',item,re.DOTALL)
             item = item.strip('.')
             item = item.replace('&amp;','&')
-            item = item.replace(',','')
+            # item = item.replace(',','')
             item = item.replace(';','')
             item = item.replace('<sup>','^')
             item = item.replace('<sup >','^')
@@ -85,6 +91,7 @@ def get_material(activeIngredients,drugName):#
             item = item.replace('</strong>','')
             item = item.strip()
             item = item.strip('.')
+            item = item.strip()
             # if(len(bold_words)!=0):
             #     string_in_bold.append(bold_words[0])
             #     # cleaned_active_ingredients.append(re.sub(r'\.?\s*<strong>.*?</strong>', '', item))
@@ -300,28 +307,38 @@ def map_drug_name_to_form(drug_name_list,forms_list,mat_to_map_form,material_lis
             "materialToMapForm":mat_to_map_form[0]
         }
         list_of_dicts.append(dictionary)
-    for j,d in enumerate(drug_name_list):
-        for k,f in enumerate(forms_list):
+    rows =[]
+    for j,f in enumerate(drug_name_list):
+        row = {
+                "index": j,
+                "values":[]
+            }
+        # current_entry=list_of_dicts[j]
+        for k,a in enumerate(forms_list):
+#             a=a.lower()
             count=0
-            current_entry=list_of_dicts[k]
-            words_in_drug_name=d.split()
-            for word in words_in_drug_name:
+            words_in_form=a.split()
+            for word in words_in_form:
                 if word.lower() in f.lower():
                     count=count+1
-            if(current_entry['count']<count):
-                current_entry['count']=count
-                current_entry['drugName']=d
-#     list_of_dicts = sorted(list_of_dicts, key=lambda x: x['count'], reverse=True)#sort dictionary by highest count match
-#     not_found_index=0
-#     for l,item in enumerate(list_of_dicts):
-#         if(item['drugName'] in drug_name_list):
-#             drug_name_list.remove(item['drugName'])
-#         else:
-#             not_found_index=l
-#     if(len(drug_name_list)!=0):
-#         list_of_dicts[not_found_index]['drugName']=drug_name_list[0]
-    list_of_dicts = sorted(list_of_dicts, key=lambda x: len(x['drugName']), reverse=True)#sort dictionary by form length
-    print("mapped dictionary for drugName and form: ",list_of_dicts)
+            row["values"].append(count)
+            # if(current_entry['count']<count):
+            #     current_entry['count']=count
+                #current_entry['form']=f
+        rows.append(row)
+    while len(rows) != 0:
+        for row in rows:
+            max_element = 0
+            max_index = 0
+            for i , item in enumerate(row["values"]):
+                if max_element <= item:
+                    max_element = item
+                    max_index = i
+            if(isRowUnique(row["values"],max_element)):
+                list_of_dicts[row["index"]]["form"] = forms_list[max_index]
+                rows.remove(row)
+                rows = clearForms(rows,max_index) 
+    list_of_dicts = sorted(list_of_dicts, key=lambda x: len(x['form']), reverse=True)#sort dictionary by form length
     return list_of_dicts
 def get_matching_material(current_form,current_drug,list_of_dicts):#get matching material for cuurent form
     matching_mat=''
@@ -363,6 +380,11 @@ def get_dosage_from_packaging(dos_match_from_packaging,con_match_from_packaging,
 def extract_dos_con_format_from_mat(d,con,mat,std_mat,dosage_match,con_match,dosage_match_in_mat,con_match_in_mat,material_to_map,format_org,std_format,format_match):
     std_mat=std_mat.strip()
     mat=mat.strip()
+    regex_to_match_comma_in_dos = re.findall(r'\d+\,\d+',mat,re.DOTALL)
+    for match in regex_to_match_comma_in_dos:
+        std_match = match.replace(',','')
+        mat = mat.replace(match,std_match)
+        std_mat = std_mat.replace(match,std_match)
     if(len(d)==0 and len(con)==0 ):
         # dosage_match = re.findall('\d+\.?\d*\s?u\/?\-?\d*\.?\d*\s?u|\d+\.?\d*\/?\-?\d*\.?\d*\s?u|\d+\.?\d*\s?g\/?\-?\d*\.?\d*\s?g|\d+\.?\d*\/?\-?\d*\.?\d*\s?g|\d+\.?\d*\s?mcg\/?\-?\d*\.?\d*\s?mcg|\d+\.?\d*\/?\-?\d*\.?\d*\s?mcg|\d+\.?\d*\s?IU\/?\-?\d*\.?\d*\s?IU|\d+\.?\d*\s?IU\/?mL|\d+\.?\d*\/?\-?\d*\.?\d*\s?IU|\d+\.?\d*\s?mL\/?\-?\d*\.?\d*\s?mL|\d+\.?\d*\/?\-?\d*\.?\d*\s?mL|\d+\.?\d*\/?\-?\d*\.?\d*\s?ml|\d+\.?\d*\s?mg\/?\-?\d*\.?\d*\s?mg|\d+\.?\d*\/?\-?\d*\.?\d*\s?mg|\d+\.?\d*\s?iu\/?\-?\d*\.?\d*\s?iu|\d+\.?\d*\/?\-?\d*\.?\d*\s?iu|\d+\.?\d*\s?KIU\/?\-?\d*\.?\d*\s?KIU|\d+\.?\d*\/?\-?\d*\.?\d*\s?KIU|\d+\.?\d*\s?U\/?\-?\d*\.?\d*\s?U|\d+\.?\d*\/?\-?\d*\.?\d*\s?U|\d*\.?\d*\s?mL',mat, re.DOTALL)# Regex extracting 2 gummies as 2g
         dosage_match = re.findall('[^\w](\d+\.?\d*\s?u\/?\-?\d*\.?\d*\s?u|\d+\.?\d*\/?\-?\d*\.?\d*\s?u|\d+\.?\d*\s?g\/?\-?\d*\.?\d*\s?g|\d+\.?\d*\/?\-?\d*\.?\d*\s?g|\d+\.?\d*\s?mcg\/?\-?\d*\.?\d*\s?mcg|\d+\.?\d*\/?\-?\d*\.?\d*\s?mcg|\d+\.?\d*\s?IU\/?\-?\d*\.?\d*\s?IU|\d+\.?\d*\s?IU\/?mL|\d+\.?\d*\/?\-?\d*\.?\d*\s?IU|\d+\.?\d*\s?mL\/?\-?\d*\.?\d*\s?mL|\d+\.?\d*\/?\-?\d*\.?\d*\s?mL|\d+\.?\d*\/?\-?\d*\.?\d*\s?ml|\d+\.?\d*\s?mg\/?\-?\d*\.?\d*\s?mg|\d+\.?\d*\/?\-?\d*\.?\d*\s?mg|\d+\.?\d*\s?iu\/?\-?\d*\.?\d*\s?iu|\d+\.?\d*\/?\-?\d*\.?\d*\s?iu|\d+\.?\d*\s?KIU\/?\-?\d*\.?\d*\s?KIU|\d+\.?\d*\/?\-?\d*\.?\d*\s?KIU|\d+\.?\d*\s?U\/?\-?\d*\.?\d*\s?U|\d+\.?\d*\/?\-?\d*\.?\d*\s?U|\d*\.?\d*\s?mL|\d+\.?\d*\/?\-?\d*\.?\d*\s?MIU)[^\w]'," "+mat+" ", re.DOTALL)
@@ -421,7 +443,7 @@ def extract_dos_con_format_from_mat(d,con,mat,std_mat,dosage_match,con_match,dos
     if(len(d)==0 and len(con)==0):
         d=''
         con=''
-    format_match = re.findall('\s*capsule\s*|\s*tablet\s*|\s*package\s*|\sunit dose vial\s|\spolyamp inj\s|\ssoluble insulin\s|\spowd for oral susp\s|\spowd for oral soln|\ssoftgel\s|\ssoln for inj\s|\sXR-FC tab\s|\smilk powd\s|\smoisturizing facial cleansing foam\s|\sintensive moisturizing cream\s|\srestorative hydration cream\s|\smoisturising bath & shampoo\s|\slight moisturising cream\s|\sdermarelief rescue cream\s|\smoisturizing body lotion\s|\smoisturising bath & wash\s|\sdaily facial moisturizer\s|\sgentle foaming cleanser\s|\smoisturising day cream\s|\srevitalising eye cream\s|\snourishing conditioner\s|\sultra hydrating lotion\s|\smoisturising body wash\s|\ssensitive light lotion\s|\snurturing night cream\s|\smoisturising cleanser\s|\sintensive moisturizer\s|\sintensive oint-cream\s|\soil free moisturiser\s|\sdermarelief cleanser\s|\srichenic urea cream\s|\shydrating body wash\s|\smoisturising lotion\s|\sdose: powd for inj\s|\spowd for inj\s|\smoisturising cream\s|\snourishing shampoo\s|\sdermarelief lotion\s|\smulti-action cream\s|\sprofessional serum\s|\smoisturising wash\s|\sintensive lotion\s|\sfoaming cleanser\s|\sbody moisturiser\s|\smedicated lotion\s|\sdaily face cream\s|\sdaily oral rinse\s|\sintensive cream\s|\ssoothing lotion\s|\sgentle cleanser\s|\ssting-free oint\s|\sfilm-coated tab\s|\ssoothing cream\s|\sgentle shampoo\s|\sdaily moisture\s|\scleansing gel\s|\scod liver oil\s|\srepair cream\s|\schewable tab\s|\sfoaming wash\s|\sultra lotion\s|\sdaily lotion\s|\snappy cream\s|\sskin lotion\s|\sgentle wash\s|\srectal oint\s|\smouth spray\s|\screamy wash\s|\smoisturizer\s|\shand cream\s|\srescue gel\s|\sfruit powd\s|\stoothpaste\s|\sinhalation\s|\scaring oil\s|\soral spray\s|\soral susp\s|\soral liqd\s|\smouthwash\s|\smouth gel\s|\soral soln\s|\sactuation\s|\scleanser\s|\ssunblock\s|\sbath oil\s|\sgranules\s|\sinsulin\s|\sshampoo\s|\sfc tab\s|\ssachet\s|\slotion\s|\stroche\s|\scream\s|\sdrops\s|\spowd\s|\ssusp\s|\sliqd\s|\swash\s|\ssupp\s|\sdose\s|\soint\s|\ssoln\s|\stab\s|\scap\s|\sinj\s|\sgel\s|\ssyr\s|\sgummies\s|\sgummy\s|\sturbuhaler\s|\saccuhaler\s|\sevohaler\s|\smdv\s|\svial\s'," "+material_to_map+" ",re.IGNORECASE)
+    format_match = re.findall('\sMoisturising Wash & Shampoo\s|\sexpectorant\s|\sCream & Intensive Cream\s|\sWash & Shampoo\s|\sUltrafresh Stretch Mark\s|\sUltrafresh Shower Gel\s|\sIntifresh Hygiene Mist\s|Protect Hand Cream\s|Protect Hand Cream\s|\s*capsule\s*|\s*tablet\s*|\s*package\s*|\sunit dose vial\s|\spolyamp inj\s|\ssoluble insulin\s|\spowd for oral susp\s|\spowd for oral soln|\ssoftgel\s|\ssoln for inj\s|\sXR-FC tab\s|\smilk powd\s|\smoisturizing facial cleansing foam\s|\sintensive moisturizing cream\s|\srestorative hydration cream\s|\smoisturising bath & shampoo\s|\slight moisturising cream\s|\sdermarelief rescue cream\s|\smoisturizing body lotion\s|\smoisturising bath & wash\s|\sdaily facial moisturizer\s|\sgentle foaming cleanser\s|\smoisturising day cream\s|\srevitalising eye cream\s|\snourishing conditioner\s|\sultra hydrating lotion\s|\smoisturising body wash\s|\ssensitive light lotion\s|\snurturing night cream\s|\smoisturising cleanser\s|\sintensive moisturizer\s|\sintensive oint-cream\s|\soil free moisturiser\s|\sdermarelief cleanser\s|\srichenic urea cream\s|\shydrating body wash\s|\smoisturising lotion\s|\sdose: powd for inj\s|\spowd for inj\s|\smoisturising cream\s|\snourishing shampoo\s|\sdermarelief lotion\s|\smulti-action cream\s|\sprofessional serum\s|\smoisturising wash\s|\sintensive lotion\s|\sfoaming cleanser\s|\sbody moisturiser\s|\smedicated lotion\s|\sdaily face cream\s|\sdaily oral rinse\s|\sintensive cream\s|\ssoothing lotion\s|\sgentle cleanser\s|\ssting-free oint\s|\sfilm-coated tab\s|\ssoothing cream\s|\sgentle shampoo\s|\sdaily moisture\s|\scleansing gel\s|\scod liver oil\s|\srepair cream\s|\schewable tab\s|\sfoaming wash\s|\sultra lotion\s|\sdaily lotion\s|\snappy cream\s|\sskin lotion\s|\sgentle wash\s|\srectal oint\s|\smouth spray\s|\screamy wash\s|\smoisturizer\s|\shand cream\s|\srescue gel\s|\sfruit powd\s|\stoothpaste\s|\sinhalation\s|\scaring oil\s|\soral spray\s|\soral susp\s|\soral liqd\s|\smouthwash\s|\smouth gel\s|\soral soln\s|\sactuation\s|\scleanser\s|\ssunblock\s|\sbath oil\s|\sgranules\s|\sinsulin\s|\sshampoo\s|\sfc tab\s|\ssachet\s|\slotion\s|\stroche\s|\scream\s|\sdrops\s|\spowd\s|\ssusp\s|\sliqd\s|\swash\s|\ssupp\s|\sdose\s|\soint\s|\ssoln\s|\stab\s|\scap\s|\sinj\s|\sgel\s|\ssyr\s|\sgummies\s|\sgummy\s|\sturbuhaler\s|\saccuhaler\s|\sevohaler\s|\smdv\s|\svial\s|\sspray\s|\sBody wash\s'," "+material_to_map+" ",re.IGNORECASE)
     if(len(format_match)!=0 and len(format_org)==0):
         format_org=format_match[0].strip()
         std_format=search(format_org)
@@ -432,7 +454,9 @@ def extract_dos_con_format_from_mat(d,con,mat,std_mat,dosage_match,con_match,dos
         std_mat = std_mat.strip()
         print("Removed raw string from material :",std_mat,"raw material:",material_to_map)
     dosage_match_in_mat = re.findall('[^\w](\d+\.?\d*\s?mg\/?\d*\.?\d*\s?IU|\d+\.?\d*\s?units\s?\/?\s?\d*\.?\d*\s?mL|\d+\.?\d*\s?mL\s?\/?\s?\d*\.?\d*\s?dose|\d+\.?\d*\s?IU\s?\/?\s?\d*\.?\d*\s?tube|\d+\.?\d*\s?mg\s?\/?\s?\d*\.?\d*\s?dose|\d+\.?\d*\s?IU\s?\/?\s?\d*\.?\d*\s?g|\d+\.?\d*\s?MIU\s?\/?\s?\d*\.?\d*\s?MIU|\d+\.?\d*\s?IU\s?\/?\d*\.?\d*\s?mg|\d+\.?\d*\s?mmol\s?\/?\d*\.?\d*\s?L|\d+\.?\d*\s?mOsm\/?\d*\.?\d*\s?kg|\d+\.?\d*\s?mg\s?\/?\d*\.?\d*\s?g|\d+\.?\d*\s?g\/?\d*\.?\d*\s?L|\d*\.?\d*\s?g\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?mosm\/?\d*\.?\d*\s?L|\d+\.?\d*\/?\-?\d*\.?\d*\s?mOsm\/?\d*\.?\d*\s?L|\d+\.?\d*\s?mOsmol\/?\d*\s?L|\d+\.?\d*\s?mOsmol\/?\d*\s?kg|\d+\.?\d*\s?billion cells\/?\d+\s?mL|\d+\.?\d*\s?mg\/?\-?\d*\.?\d*\s?mL|\d+\.?\d*\/?\-?\d*\.?\d*\s?mcg\/?dose|\d+\.?\d*\/?\-?\d*\.?\d*\s?mcg\/?actuation|\d+\.?\d*\/?\d*\.?\d*\s?u\/?mL\s?\+?\s?\d*\.?\d*\s?mcg\/?mL|\d+\.?\d*\/?\d*\.?\d*\s?mg\/?mL|\d+\.?\d*\s?u\/?\-?\d*\.?\d*\s?u|\d+\.?\d*\/?\-?\d*\.?\d*\s?u|\d+\.?\d*\s?g\/?\-?\d*\.?\d*\s?g|\d+\.?\d*\/?\-?\d*\.?\d*\s?g|\d+\.?\d*\s?mcg\/?\-?\d*\.?\d*\s?mcg|\d+\.?\d*\/?\-?\d*\.?\d*\s?mcg|\d+\.?\d*\s?IU\/?\-?\d*\.?\d*\s?IU|\d+\.?\d*\s?IU\/?\-?\d*\.?\d*\s?mL|\d+\.?\d*\/?\-?\d*\.?\d*\s?IU|\d+\.?\d*\s?mL\/?\-?\d*\.?\d*\s?mL|\d+\.?\d*\/?\-?\d*\.?\d*\s?mL|\d+\.?\d*\/?\-?\d*\.?\d*\s?ml|\d+\.?\d*\s?mg(?:\/\d+\.?\d*\s?mg)*|\d+\.?\d*\/?\-?\d*\.?\d*/?\-?\d*\.?\d*\s?mg|\d+\.?\d*\s?iu\/?\-?\d*\.?\d*\s?iu|\d+\.?\d*\/?\-?\d*\.?\d*\s?iu|\d+\.?\d*\s?KIU\/?\-?\d*\.?\d*\s?KIU|\d+\.?\d*\/?\-?\d*\.?\d*\s?KIU|\d+\.?\d*\s?U\/?\-?\d*\.?\d*\s?U|\d+\.?\d*\/?\-?\d*\.?\d*\s?U|\d+\.?\d*\/?\-?\d*\.?\d*\s?mmol|\d+\.?\d*\/?\-?\d*\.?\d*\s?million cells|\d+\.?\d*\/?\-?\d*\.?\d*\s?billion cells|\d+\.?\d*\/?\-?\d*\.?\d*\s?CFU|\d+\.?\d*\/?\-?\d*\.?\d*\s?mOsm|\d+\.?\d*\/?\-?\d*\.?\d*\s?MIU)[^\w]'," "+std_mat+" ", re.DOTALL)
-    con_match_in_mat = re.findall('\d+\.?\d*\s?%',mat, re.DOTALL)
+    con_match_in_mat = re.findall('\d+\.?\d*\s?%',std_mat, re.DOTALL)
+    std_mat = std_mat.replace(',','')
+    mat = mat.replace(',','')
     if(len(dosage_match_in_mat)==0 and len(con_match_in_mat)==0):
         current_mat=mat
         std_mat=re.sub(r'\s+', ' ', std_mat)
@@ -451,6 +475,7 @@ def extract_dos_con_format_from_mat(d,con,mat,std_mat,dosage_match,con_match,dos
         std_mat=std_mat.strip('&')
         std_mat=std_mat.replace(' / ',' ')
         std_mat=std_mat.replace('()',' ')
+        std_mat=std_mat.replace(' . ',' ')
         std_mat=std_mat.strip('or')
         std_mat=re.sub(r'\s+', ' ', std_mat)
         std_mat=std_mat.strip() 
@@ -465,6 +490,7 @@ def extract_dos_con_format_from_mat(d,con,mat,std_mat,dosage_match,con_match,dos
         std_mat=std_mat.strip('&')
         std_mat=std_mat.replace(' / ',' ')
         std_mat=std_mat.replace('()',' ')
+        std_mat=std_mat.replace(' . ',' ')
         std_mat=std_mat.strip('or')
         std_mat=re.sub(r'\s+', ' ', std_mat)
         std_mat=std_mat.strip()
@@ -480,6 +506,7 @@ def extract_dos_con_format_from_mat(d,con,mat,std_mat,dosage_match,con_match,dos
         std_mat=std_mat.strip('&')
         std_mat=std_mat.replace(' / ',' ')
         std_mat=std_mat.replace('()',' ')
+        std_mat=std_mat.replace(' . ',' ')
         std_mat=std_mat.strip('or')
         std_mat=re.sub(r'\s+', ' ', std_mat)
         std_mat=std_mat.strip()
@@ -489,22 +516,97 @@ def extract_dos_con_format_from_mat(d,con,mat,std_mat,dosage_match,con_match,dos
         std_mat = pattern.sub('', std_mat)
         current_std_mat=std_mat
     return d,con,current_mat,current_std_mat,format_org,std_format
+def add_manual(csv_headers,drug,manf,cims_class,mims_class,atc_code_list,atc_list,std_uom,d,con,format_org,std_format,material_list,dosage_match,con_match,dosage_match_in_mat,con_match_in_mat,mat_to_map_list,format_match):
+    for e,entry in enumerate(material_list):
+        csv_headers.brand.append(drug)        
+        csv_headers.manufacturer.append(manf)
+        csv_headers.cimsClass.append(cims_class)
+        csv_headers.mimsClass.append(mims_class)
+        if(len(atc_code_list)!=0):
+            atc_code = atc_code_list[0]
+            csv_headers.atcCode.append(atc_code)
+        elif(len(atc_code_list)==0):
+            csv_headers.atcCode.append('')
+        if(len(atc_list)!=0):
+            atc=atc_list[0]
+            atc=atc.replace(';','')
+            atc=atc.replace(',','')
+            atc=atc.replace('  ',' ')
+            atc=atc.strip('.')
+            csv_headers.atcDetail.append(atc)
+        elif(len(atc_list)==0):
+            csv_headers.atcDetail.append('')
+        std_uom = std_uom.strip()
+        csv_headers.uom.append(std_uom)
+        csv_headers.amount.append('')
+        std_mat = entry
+        mat = entry
+        dos = ""
+        c = ""
+        dos,c,current_mat,current_std_mat,format_org,std_format = extract_dos_con_format_from_mat(d,con,mat,std_mat,dosage_match,con_match,dosage_match_in_mat,con_match_in_mat,mat_to_map_list[e],format_org,std_format,format_match)
+        dos = dos.replace(' ','')
+        dos = dos.replace(',','')
+        c = c.replace(' ','')
+        c = c.replace(',','')
+        csv_headers.dosage.append(dos)
+        csv_headers.concentration.append(c)
+        csv_headers.format_original.append(format_org)
+        csv_headers.formater.append(std_format)
+        csv_headers.material.append(current_mat)
+        csv_headers.std_material.append(current_std_mat)
 def process_drug_name(drugName):
     parts = drugName.split('/')
     first_word = parts[0].split()[0]
     drug_name = []
-    if first_word in parts[1]:
+    if all(first_word in part for part in parts):
         for part in parts:
             drug_name.append(part)
     else:
         drug_name.append(drugName)
     return drug_name
-with open('vietnam.csv','w') as file:
+def split_drug_name(drugName):
+    drug_name = []
+    parts = drugName.split('/')
+    first_word = parts[0].split()[0]
+    count_drug_name = drugName.count(first_word)
+    if (count_drug_name==1):
+        for part in parts:
+            res = ''
+            if(first_word not in part):
+                res = first_word +" "+ part
+            else:
+                res = part
+            drug_name.append(res)
+    else:
+        drug_name.append(drugName)
+    return drug_name
+with open('MIMS Vietnam.csv','w') as file:
     writer = csv.writer(file)
     writer.writerow(["brand","manufacturer","cims_class","material","standard_material","format_original","standard_format","concentration","dosage","uom","atc_code","atc_detail","amount","mims_class"])
+with open('Vietnam.csv','w') as f:
+    writer = csv.writer(f)
+    writer.writerow(["brand","manufacturer","cims_class","material","standard_material","format_original","standard_format","concentration","dosage","uom","atc_code","atc_detail","amount","mims_class"])
+class CsvHeaders:
+    brand=[]    
+    manufacturer=[]
+    cimsClass=[]
+    atcCode=[]
+    atcDetail=[]
+    material=[]
+    dosage=[]
+    uom=[]
+    form=[]
+    products=[]
+    formater=[]
+    concentration=[]
+    format_original=[]
+    l=[]
+    std_material=[]
+    mimsClass=[]
+    amount=[]
 def read_text_file(file):  
     with open(file) as f:
-        print("filename------------------------------------------------------------------------------------------",file)
+        csv_headers = CsvHeaders()
         data= [json.loads(line) for line in f]    
         brand=[]    
         manufacturer=[]
@@ -520,7 +622,6 @@ def read_text_file(file):
         concentration=[]
         format_original=[]
         l=[]
-        
         std_material=[]
         mimsClass=[]
         amount=[]
@@ -545,6 +646,7 @@ def read_text_file(file):
             std_uom=''
             drug_name=[]
             activeIngredientsList=[]
+            is_length_to_map_equal = True
             print("--------------------------------------------------------------------------------",item['drugName'])
             products = item['details']['products']
             activeIngredients = item['details']['activeIngredients']
@@ -564,21 +666,31 @@ def read_text_file(file):
             drugClassification = item['drugClassification']
             if(drugName.find('/')!=-1):
                 drug_name = process_drug_name(drugName)
-            else:
+            if(len(drug_name)<=1):
+                regex_for_split = re.findall(r'\d+\.?\d*/\d+\.?\d*$',drugName,re.DOTALL)
+                if(regex_for_split):
+                    drug_name = split_drug_name(drugName)
+            if(len(drug_name)<=1):
                 drug_name.append(drugName)
-            mat_to_map_list,material_list = get_material(activeIngredients,drug_name[0])
+            if(len(activeIngredients)!=0):
+                active_ingredients_list = split_material(activeIngredients,drug_name)
+                mat_to_map_list,material_list = get_material(active_ingredients_list,drug_name[0])
+            else:
+                material_list = ''
             if(len(products)==0):
                 for drug in drug_name:
                     if(len(material_list)!=0):
                         local_keywords_list = append_keywords_from_form_to_keywords_list([],drug_name)
-                        if(len(material_list) != len(drug_name) and len(drug_name)>1):
-                                print("drugname : ",drug_name,"material list : ",material_list,"forms list : ",forms_list)
-                                continue
                         if(len(material_list) > 1 and len(drug_name) > 1):#map drugName to material
-                            list_of_dicts = map_drug_name_to_mat(drug_name,mat_to_map_list,material_list)
-                            # for i,entry in enumerate(material_list):
-                            matched_material,material_to_map = get_matching_material('',drug,list_of_dicts)
-                            if(matched_material):
+                            if(len(material_list) != len(drug_name)):
+                                matched_material = ""
+                                is_length_to_map_equal = False
+                            else:
+                                list_of_dicts = map_drug_name_to_mat(drug_name,mat_to_map_list,material_list)
+                                # for i,entry in enumerate(activeIngredientsList):
+                                matched_material,material_to_map = get_matching_material('',drug,list_of_dicts)
+                            print("is length equal for mapping : ",is_length_to_map_equal)
+                            if(matched_material and is_length_to_map_equal == True):
                                 brand.append(drug)        
                                 manufacturer.append(manf)
                                 cimsClass.append(cims_class)
@@ -618,8 +730,11 @@ def read_text_file(file):
                                 formater.append(std_format)
                                 material.append(current_mat)
                                 std_material.append(current_std_mat)
+                            elif(is_length_to_map_equal == False):
+                                print("length not equal for mapping :",material_list,drug_name)
+                                add_manual(csv_headers,drug,manf,cims_class,mims_class,atc_code_list,atc_list,std_uom,d,con,format_org,std_format,material_list,dosage_match,con_match,dosage_match_in_mat,con_match_in_mat,mat_to_map_list,format_match)
                             else:
-                                print("match not found when form is empty")
+                                pass
                         else:
                                     for e,entry in enumerate(material_list):
                                         brand.append(drug)        
@@ -699,19 +814,16 @@ def read_text_file(file):
             elif(len(products)!=0):
                 forms_list = get_forms(products)
                 local_keywords_list = append_keywords_from_form_to_keywords_list(forms_list,drug_name)
-                if( len(material_list)!=0):
-                    if(len(material_list) != len(forms_list) and len(material_list)>1):
+                if(len(material_list)!=0):
+                    if((len(material_list) != len(forms_list) and len(material_list)>1) or ((len(drug_name) != len(forms_list) and len(drug_name)>1)) or ((len(drug_name) != len(material_list) and len(drug_name)>1) and len(material_list)>1)):
                             print("drugname : ",drug_name,"material list : ",material_list,"forms list : ",forms_list)
-                            continue
-                    if(len(drug_name) != len(forms_list) and len(drug_name)>1):
-                            print("drugname : ",drug_name,"material list : ",material_list,"forms list : ",forms_list)
-                            continue
-                    if(len(material_list)>1):#map form to material in case of single or multiple drugNames
-                        list_of_dicts = map_form_to_mat(forms_list,mat_to_map_list,material_list,drug_name)
-                    if(len(drug_name)>1 and len(material_list)<=1):#map drugName to form in case of single material
-                        list_of_dicts = map_drug_name_to_form(drug_name,forms_list,mat_to_map_list,material_list)
+                            is_length_to_map_equal = False
+                    else:
+                        if(len(material_list)>1):#map form to material in case of single or multiple drugNames
+                            list_of_dicts = map_form_to_mat(forms_list,mat_to_map_list,material_list,drug_name)
+                        if(len(drug_name)>1 and len(material_list)<=1):#map drugName to form in case of single material
+                            list_of_dicts = map_drug_name_to_form(drug_name,forms_list,mat_to_map_list,material_list)
                 for drug in drug_name:
-                    print("current drug : ",drug)
                     for product in products:
                         packaging = product['packaging']
                         std_packaging = remove_substring_in_brackets(packaging)
@@ -727,10 +839,28 @@ def read_text_file(file):
                             std_uom=remove_substring_in_brackets(i)
                             std_uom=std_uom.replace("'s","")
                             std_uom=std_uom.strip()
-                            if(form.find(drug)!=-1):
-                                pattern = re.compile(re.escape(drug), re.IGNORECASE)
-                                form = pattern.sub('', form)
-                                form_without_drug_name = pattern.sub('', org_form)
+                            if(len(drug_name)>1):
+                                drug_match_in_form=''
+                                for d in drug_name:
+                                        if(org_form.find(d)!=-1):
+                                            drug_match_in_form=form[org_form.find(d):org_form.find(d)+len(d)]
+                                            best_match=drug_match_in_form
+#                                             current_drug=d
+                                print("form to be replaced : ",drug_match_in_form)
+                                form = form.replace(drug_match_in_form,'')
+                                form_without_drug_name = form_without_drug_name.replace(drug_match_in_form,'')
+                            else:
+                                if(org_form.find(drug)==-1):
+                                    original_form = org_form.split()
+                                    drug_names = drug.split()
+                                    for i in range(len(original_form)):
+                                        if(original_form[i] in drug_names):
+                                            form = form.replace(original_form[i],'')
+                                            form_without_drug_name = form_without_drug_name.replace(original_form[i],'')
+                                else:
+                                    pattern = re.compile(re.escape(drug), re.IGNORECASE)
+                                    form = pattern.sub('', form)
+                                    form_without_drug_name = pattern.sub('', org_form)
                                 # org_form = pattern.sub('', org_form)
                             org_form = org_form.replace(',','')
                             form_without_drug_name = form_without_drug_name.replace(',','')
@@ -746,7 +876,6 @@ def read_text_file(file):
                             else:
                                 con_match_from_form = []
                                 dos_match_from_form = re.findall('[^\w](\d+\.?\d*\s?mg\/?\d*\.?\d*\s?IU|\d+\.?\d*\s?IU\/?\d*\.?\d*\s?ml|\d+\.?\d*\s?IU\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?g\/?\d*\.?\d*\s?g|\d+\.?\d*\s?mcg\/?\d*\.?\d*\s?dose|\d+\.?\d*\s?mcg\/?\d*\.?\d*\s?hour|\d+\.?\d*\s?mg\/?\d*\.?\d*\s?g|\d+\.?\d*\s?mcg\/?\d*\.?\d*\s?g|\d+\.?\d*\s?units\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?mg\/?\d*\.?\d*\s?g|\d+\.?\d*\s?mg\/?\d*\.?\d*\s?ml|\d+\.?\d*\s?mg\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?mg(?:\/\d+\.?\d*\s?mg)*|\d+\.?\d*\s*MIU|\d+\.?\d*\s?MU\/?\d*\.?\d*\s?mL|\d+.?\d*\/?\d*.?\d*\/?\d*.?\d*\s*mg(?:\/?(?:\d*.?\d*\s*mL)?)?|\d+.?\d*\s*g(?:\/?(?:\d*.?\d*\s*mL)?)?(?:\/?(?:\d*.?\d*\s*L)?)?|\d+\.?\d*?MIU|\d+\s*IU(?:\/?(?:\d*.?\d*\s*mL)?)?|\d+\.?\d*\s?U\/?mL|\d+.?\d*\/?\d*\s*mcg(?:\/?(?:\d*.?\d*\s*mL)?)?|\d+\.?\d*\s?mL|\d+\.?\d*\s?U|\d+\.?\d*\s?u|\d+\.?\d+/\d+\.?\d+|\d+\.?\d*/?\d+\.?\d*|\d+\.?\d*)[^\w]'," "+form_without_drug_name+" ", re.DOTALL)
-                            print("dosage match form form : ",dos_match_from_form)
                             if(len(dos_match_from_form)!=0 and len(con_match_from_form)!=0):
                                 result=''
                                 for cm in con_match_from_form:
@@ -780,20 +909,19 @@ def read_text_file(file):
                             form = form.replace('w/w','')
                             form = form.replace('w/v','')
                             form = form.strip()
+                            print("form:",form)
                             format_org = form
                             std_format = search(form)
                             if(std_format==None):
                                 std_format = ''
+                            d = re.sub(r'(\d+\.?\d*)\s*/\s*(\d+\.?\d*)\s*([A-Za-z]+)', r'\1\3/\2\3', d)
+                            print("is length equal for mapping : ",is_length_to_map_equal)
                             if(len(material_list)!=0):
-                                     # material_list=material_list
-                                    # if(material_list[0].startswith('Per ')):
-                                    #     per='Per '
-                                    #     material_list =  [per+e for e in material_list[0].split(per) if e]
-                                    #     # for entry in material_list:
                                     if(len(material_list) > 1 or len(drug_name) > 1):
-                                        matched_material,material_to_map = get_matching_material(org_form,drug,list_of_dicts)
-                                        print("matched_material :",matched_material,"material to map form : " ,material_to_map)
-                                        if(len(matched_material)!=0):
+                                        matched_material = ""
+                                        if(is_length_to_map_equal == True):
+                                            matched_material,material_to_map = get_matching_material(org_form,drug,list_of_dicts)
+                                        if(len(matched_material)!=0 and is_length_to_map_equal == True):
                                             brand.append(drug)        
                                             manufacturer.append(manf)
                                             cimsClass.append(cims_class)
@@ -830,10 +958,11 @@ def read_text_file(file):
                                             formater.append(std_format)
                                             material.append(current_mat)
                                             std_material.append(current_std_mat)
+                                        elif(is_length_to_map_equal == False):
+                                            print("length not equal for mapping when form is present:",material_list,drug_name)
+                                            add_manual(csv_headers,drug,manf,cims_class,mims_class,atc_code_list,atc_list,std_uom,d,con,format_org,std_format,material_list,dosage_match,con_match,dosage_match_in_mat,con_match_in_mat,mat_to_map_list,format_match)
                                         else:
-                                            print("Match not found at all")
-                                            break;
-                                    
+                                            pass
                                     else:
                                         entry = material_list[0]
                                         brand.append(drug)        
@@ -907,10 +1036,14 @@ def read_text_file(file):
                                 amount.append('')
                                 format_original.append(format_org)
                                 formater.append(std_format)
-    file = open('vietnam.csv', 'a', newline ='')
+    file = open('MIMS Vietnam.csv', 'a', newline ='')
     with file:
         write = csv.writer(file)
-        write.writerows(zip(brand,manufacturer,cimsClass,material,std_material,format_original,formater,concentration,dosage,uom,atcCode,atcDetail,amount,mimsClass))      
+        write.writerows(zip(csv_headers.brand,csv_headers.manufacturer,csv_headers.cimsClass,csv_headers.material,csv_headers.std_material,csv_headers.format_original,csv_headers.formater,csv_headers.concentration,csv_headers.dosage,csv_headers.uom,csv_headers.atcCode,csv_headers.atcDetail,csv_headers.amount,csv_headers.mimsClass))
+    f = open('Vietnam.csv', 'a', newline ='')
+    with f:
+        write = csv.writer(f)
+        write.writerows(zip(brand,manufacturer,cimsClass,material,std_material,format_original,formater,concentration,dosage,uom,atcCode,atcDetail,amount,mimsClass))
 def search(form):
         es = Elasticsearch("http://admin:admin@localhost:9200/", ca_certs=False, verify_certs=False)
         query = {
@@ -929,5 +1062,5 @@ def search(form):
             standard_format=doc['_source']['format']
             return standard_format
 for file in os.listdir():
-    if file.endswith(".jsonl"):
+    if file.__eq__("test.jsonl"):
         read_text_file(file)
