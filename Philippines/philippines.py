@@ -238,18 +238,18 @@ def map_form_to_mat(forms_list,mat_to_map_form,material_list,drug_name):#map for
     return list_of_dicts
 
 def map_drug_name_to_mat_and_form(list_of_dicts,drug_name):#map drugName to material and form with highest count match   
-    for c in list_of_dicts:
-        c['count'] = 0 
-    for j,d in enumerate(drug_name):
-        for k, current_entry in enumerate(list_of_dicts):
-            count=0
-            words_in_drug_name= d.split()
-            for word in words_in_drug_name:
-                if word.lower() in current_entry["form"].lower():
-                    count=count+1
-            if(current_entry['count']<count):
-                current_entry['count']=count
-                current_entry['drugName']= d
+    # for c in list_of_dicts:
+    #     c['count'] = 0 
+    # for j,d in enumerate(drug_name):
+    #     for k, current_entry in enumerate(list_of_dicts):
+    #         count=0
+    #         words_in_drug_name= d.split()
+    #         for word in words_in_drug_name:
+    #             if word.lower() in current_entry["form"].lower():
+    #                 count=count+1
+    #         if(current_entry['count']<count):
+    #             current_entry['count']=count
+    #             current_entry['drugName']= d
     # not_found_index=0
     # list_of_dicts = sorted(list_of_dicts, key=lambda x: x['count'], reverse=True)#sort dictionary by highest count match
     # for l,item in enumerate(list_of_dicts):
@@ -259,8 +259,41 @@ def map_drug_name_to_mat_and_form(list_of_dicts,drug_name):#map drugName to mate
     #         not_found_index=l
     # if(len(drug_name)!=0):
     #     list_of_dicts[not_found_index]['drugName']=drug_name[0]
-    list_of_dicts = sorted(list_of_dicts, key=lambda x: len(x['drugName']), reverse=True)#sort dictionary by drugName length
-    print("mapped dictionary with drugName: ",list_of_dicts)
+    # list_of_dicts = sorted(list_of_dicts, key=lambda x: len(x['drugName']), reverse=True)#sort dictionary by drugName length
+    # print("mapped dictionary with drugName: ",list_of_dicts)
+    # return list_of_dicts
+    rows =[]
+    for j,f in enumerate(drug_name):
+        row = {
+                "index": j,
+                "values":[]
+            }
+        # current_entry=list_of_dicts[j]
+        for k,a in enumerate(list_of_dicts):
+#             a=a.lower()
+            count=0
+            words_in_form=a["form"].split()
+            for word in words_in_form:
+                if word.lower() in f.lower():
+                    count=count+1
+            row["values"].append(count)
+            # if(current_entry['count']<count):
+            #     current_entry['count']=count
+                #current_entry['form']=f
+        rows.append(row)
+    while len(rows) != 0:
+        for row in rows:
+            max_element = 0
+            max_index = 0
+            for i , item in enumerate(row["values"]):
+                if max_element <= item:
+                    max_element = item
+                    max_index = i
+            if(isRowUnique(row["values"],max_element)):
+                list_of_dicts[row["index"]]["drugName"] = drug_name[max_index]
+                rows.remove(row)
+                rows = clearForms(rows,max_index)
+    list_of_dicts = sorted(list_of_dicts, key=lambda x: len(x['drugName']), reverse=True)
     return list_of_dicts
 def map_drug_name_to_mat(drug_name_list,mat_to_map_drug,material_list):#map drugName to material with highest count match
     list_of_dicts = []
@@ -516,7 +549,7 @@ def extract_dos_con_format_from_mat(d,con,mat,std_mat,dosage_match,con_match,dos
         std_mat = pattern.sub('', std_mat)
         current_std_mat=std_mat
     return d,con,current_mat,current_std_mat,format_org,std_format
-def add_manual(csv_headers,drug,manf,cims_class,mims_class,atc_code_list,atc_list,std_uom,d,con,format_org,std_format,material_list,dosage_match,con_match,dosage_match_in_mat,con_match_in_mat,mat_to_map_list,format_match):
+def add_manual(csv_headers,drug,manf,cims_class,mims_class,atc_code_list,atc_list,std_uom,d,con,format_org,std_format,material_list,dosage_match,con_match,dosage_match_in_mat,con_match_in_mat,mat_to_map_list,format_match,std_amount):
     for e,entry in enumerate(material_list):
         csv_headers.brand.append(drug)        
         csv_headers.manufacturer.append(manf)
@@ -538,7 +571,7 @@ def add_manual(csv_headers,drug,manf,cims_class,mims_class,atc_code_list,atc_lis
             csv_headers.atcDetail.append('')
         std_uom = std_uom.strip()
         csv_headers.uom.append(std_uom)
-        csv_headers.amount.append('')
+        csv_headers.amount.append(std_amount)
         std_mat = entry
         mat = entry
         dos = ""
@@ -644,6 +677,7 @@ def read_text_file(file):
             drug=''
             org_form=''
             std_uom=''
+            std_amount = ''
             drug_name=[]
             activeIngredientsList=[]
             is_length_to_map_equal = True
@@ -710,7 +744,7 @@ def read_text_file(file):
                                 elif(len(atc_list)==0):
                                     atcDetail.append('')
                                 uom.append('')
-                                amount.append('')
+                                amount.append(std_amount)
                                 d = ''
                                 con = ''
                                 format_org = ''
@@ -732,7 +766,7 @@ def read_text_file(file):
                                 std_material.append(current_std_mat)
                             elif(is_length_to_map_equal == False):
                                 print("length not equal for mapping :",material_list,drug_name)
-                                add_manual(csv_headers,drug,manf,cims_class,mims_class,atc_code_list,atc_list,std_uom,d,con,format_org,std_format,material_list,dosage_match,con_match,dosage_match_in_mat,con_match_in_mat,mat_to_map_list,format_match)
+                                add_manual(csv_headers,drug,manf,cims_class,mims_class,atc_code_list,atc_list,std_uom,d,con,format_org,std_format,material_list,dosage_match,con_match,dosage_match_in_mat,con_match_in_mat,mat_to_map_list,format_match,std_amount)
                             else:
                                 pass
                         else:
@@ -756,7 +790,7 @@ def read_text_file(file):
                                         elif(len(atc_list)==0):
                                             atcDetail.append('')
                                         uom.append('')
-                                        amount.append('')
+                                        amount.append(std_amount)
                                         d = ''
                                         con = ''
                                         format_org = ''
@@ -806,7 +840,7 @@ def read_text_file(file):
                             format_original.append('')
                             formater.append('')
                             uom.append('')
-                            amount.append('')
+                            amount.append(std_amount)
                             d=''
                             con=''
                             format_org=''
@@ -826,12 +860,13 @@ def read_text_file(file):
                 for drug in drug_name:
                     for product in products:
                         packaging = product['packaging']
-                        std_packaging = remove_substring_in_brackets(packaging)
+                        # packaging = packaging.replace(',','')
+                        # std_packaging = remove_substring_in_brackets(packaging)
                         org_form = product['form']
                         org_form = org_form.replace(',','')
                         form = org_form
                         form_without_drug_name = org_form
-                        replaced=std_packaging.replace('&#39;s','')
+                        replaced=packaging.replace('&#39;s','')
                         decode_x=replaced.replace('&#215;','x')
                         l=decode_x.split(';')
                         for i in l:
@@ -840,6 +875,10 @@ def read_text_file(file):
                             std_uom=remove_substring_in_brackets(i)
                             std_uom=std_uom.replace("'s","")
                             std_uom=std_uom.strip()
+                            regex_to_extract_amount = re.search(r'\(P(\d+\.?\d*)/', i, re.IGNORECASE)
+                            if regex_to_extract_amount:
+                                std_amount = regex_to_extract_amount.group(1)
+                                std_amount = std_amount.strip()
                             if(len(drug_name)>1):
                                 drug_match_in_form=''
                                 for d in drug_name:
@@ -946,7 +985,7 @@ def read_text_file(file):
                                                 atcDetail.append('')
                                             std_uom=std_uom.strip()
                                             uom.append(std_uom)
-                                            amount.append('')
+                                            amount.append(std_amount)
                                             mat=matched_material
                                             std_mat=matched_material
                                             dos = ""
@@ -964,7 +1003,7 @@ def read_text_file(file):
                                             std_material.append(current_std_mat)
                                         elif(is_length_to_map_equal == False):
                                             print("length not equal for mapping when form is present:",material_list,drug_name)
-                                            add_manual(csv_headers,drug,manf,cims_class,mims_class,atc_code_list,atc_list,std_uom,d,con,format_org,std_format,material_list,dosage_match,con_match,dosage_match_in_mat,con_match_in_mat,mat_to_map_list,format_match)
+                                            add_manual(csv_headers,drug,manf,cims_class,mims_class,atc_code_list,atc_list,std_uom,d,con,format_org,std_format,material_list,dosage_match,con_match,dosage_match_in_mat,con_match_in_mat,mat_to_map_list,format_match,std_amount)
                                         else:
                                             pass
                                     else:
@@ -989,7 +1028,7 @@ def read_text_file(file):
                                             atcDetail.append('')
                                         std_uom=std_uom.strip()
                                         uom.append(std_uom)
-                                        amount.append('')
+                                        amount.append(std_amount)
                                         mat=entry
                                         std_mat=entry
                                         dos = ""
@@ -1037,7 +1076,7 @@ def read_text_file(file):
                                     atcDetail.append('')
                                 std_uom=std_uom.strip()
                                 uom.append(std_uom)
-                                amount.append('')
+                                amount.append(std_amount)
                                 format_original.append(format_org)
                                 formater.append(std_format)
     file = open('MIMS Phillipines.csv', 'a', newline ='')
