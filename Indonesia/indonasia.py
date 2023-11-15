@@ -236,18 +236,36 @@ def map_drug_name_to_mat(drug_name_list,mat_to_map_drug,material_list):#map drug
             "materialToMapDrug":mat_to_map_drug[i]
         }
         list_of_dicts.append(dictionary)
-    for j,d in enumerate(drug_name_list):
+    rows =[]
+    for j,f in enumerate(drug_name_list):
+        row = {
+                "index": j,
+                "values":[]
+            }
         for k,a in enumerate(mat_to_map_drug):
 #             a=a.lower()
             count=0
-            current_entry=list_of_dicts[k]
-            words_in_drug_name=d.split()
-            for word in words_in_drug_name:
-                if word.lower() in a.lower():
+            words_in_form=a.split()
+            for word in words_in_form:
+                if word.lower() in f.lower():
                     count=count+1
-            if(current_entry['count']<count):
-                current_entry['count']=count
-                current_entry['drugName']=d
+            row["values"].append(count)
+            # if(current_entry['count']<count):
+            #     current_entry['count']=count
+                #current_entry['form']=f
+        rows.append(row)
+    while len(rows) != 0:
+        for row in rows:
+            max_element = 0
+            max_index = 0
+            for i , item in enumerate(row["values"]):
+                if max_element <= item:
+                    max_element = item
+                    max_index = i
+            if(isRowUnique(row["values"],max_element)):
+                list_of_dicts[row["index"]]["drugName"] = drug_name_list[max_index]
+                rows.remove(row)
+                rows = clearForms(rows,max_index)
     list_of_dicts = sorted(list_of_dicts, key=lambda x: len(x['drugName']), reverse=True)#sort dictionary by form length
     return list_of_dicts
 def map_drug_name_to_form(drug_name_list,forms_list,mat_to_map_form,material_list):#map drugName to form with highest count match
