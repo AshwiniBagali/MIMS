@@ -200,18 +200,18 @@ def map_form_to_mat(forms_list,mat_to_map_form,material_list,drug_name):#map for
     return list_of_dicts
 
 def map_drug_name_to_mat_and_form(list_of_dicts,drug_name):#map drugName to material and form with highest count match   
-    for c in list_of_dicts:
-        c['count'] = 0 
-    for j,d in enumerate(drug_name):
-        for k, current_entry in enumerate(list_of_dicts):
-            count=0
-            words_in_drug_name= d.split()
-            for word in words_in_drug_name:
-                if word.lower() in current_entry["form"].lower():
-                    count=count+1
-            if(current_entry['count']<count):
-                current_entry['count']=count
-                current_entry['drugName']= d
+    # for c in list_of_dicts:
+    #     c['count'] = 0 
+    # for j,d in enumerate(drug_name):
+    #     for k, current_entry in enumerate(list_of_dicts):
+    #         count=0
+    #         words_in_drug_name= d.split()
+    #         for word in words_in_drug_name:
+    #             if word.lower() in current_entry["form"].lower():
+    #                 count=count+1
+    #         if(current_entry['count']<count):
+    #             current_entry['count']=count
+    #             current_entry['drugName']= d
     # not_found_index=0
     # list_of_dicts = sorted(list_of_dicts, key=lambda x: x['count'], reverse=True)#sort dictionary by highest count match
     # for l,item in enumerate(list_of_dicts):
@@ -221,7 +221,38 @@ def map_drug_name_to_mat_and_form(list_of_dicts,drug_name):#map drugName to mate
     #         not_found_index=l
     # if(len(drug_name)!=0):
     #     list_of_dicts[not_found_index]['drugName']=drug_name[0]
-    list_of_dicts = sorted(list_of_dicts, key=lambda x: len(x['drugName']), reverse=True)#sort dictionary by drugName length
+    rows =[]
+    for j,f in enumerate(drug_name):
+        row = {
+                "index": j,
+                "values":[]
+            }
+        # current_entry=list_of_dicts[j]
+        for k,a in enumerate(list_of_dicts):
+#             a=a.lower()
+            count=0
+            words_in_form=a["form"].split()
+            for word in words_in_form:
+                if word.lower() in f.lower():
+                    count=count+1
+            row["values"].append(count)
+            # if(current_entry['count']<count):
+            #     current_entry['count']=count
+                #current_entry['form']=f
+        rows.append(row)
+    while len(rows) != 0:
+        for row in rows:
+            max_element = 0
+            max_index = 0
+            for i , item in enumerate(row["values"]):
+                if max_element <= item:
+                    max_element = item
+                    max_index = i
+            if(isRowUnique(row["values"],max_element)):
+                list_of_dicts[row["index"]]["drugName"] = drug_name[max_index]
+                rows.remove(row)
+                rows = clearForms(rows,max_index)
+    list_of_dicts = sorted(list_of_dicts, key=lambda x: len(x['drugName']), reverse=True)
     return list_of_dicts
 def map_drug_name_to_mat(drug_name_list,mat_to_map_drug,material_list):#map drugName to material with highest count match
     list_of_dicts = []
@@ -233,18 +264,18 @@ def map_drug_name_to_mat(drug_name_list,mat_to_map_drug,material_list):#map drug
             "materialToMapDrug":mat_to_map_drug[i]
         }
         list_of_dicts.append(dictionary)
-    for j,d in enumerate(drug_name_list):
-        for k,a in enumerate(mat_to_map_drug):
-#             a=a.lower()
-            count=0
-            current_entry=list_of_dicts[k]
-            words_in_drug_name=d.split()
-            for word in words_in_drug_name:
-                if word.lower() in a.lower():
-                    count=count+1
-            if(current_entry['count']<count):
-                current_entry['count']=count
-                current_entry['drugName']=d
+#     for j,d in enumerate(drug_name_list):
+#         for k,a in enumerate(mat_to_map_drug):
+# #             a=a.lower()
+#             count=0
+#             current_entry=list_of_dicts[k]
+#             words_in_drug_name=d.split()
+#             for word in words_in_drug_name:
+#                 if word.lower() in a.lower():
+#                     count=count+1
+#             if(current_entry['count']<count):
+#                 current_entry['count']=count
+#                 current_entry['drugName']=d
     # list_of_dicts = sorted(list_of_dicts, key=lambda x: x['count'], reverse=True)#sort dictionary by highest count match
     # not_found_index=0
     # for l,item in enumerate(list_of_dicts):
@@ -254,6 +285,36 @@ def map_drug_name_to_mat(drug_name_list,mat_to_map_drug,material_list):#map drug
     #         not_found_index=l
     # if(len(drug_name_list)!=0):
     #     list_of_dicts[not_found_index]['drugName']=drug_name_list[0]
+    rows =[]
+    for j,f in enumerate(drug_name_list):
+        row = {
+                "index": j,
+                "values":[]
+            }
+        for k,a in enumerate(mat_to_map_drug):
+#             a=a.lower()
+            count=0
+            words_in_form=a.split()
+            for word in words_in_form:
+                if word.lower() in f.lower():
+                    count=count+1
+            row["values"].append(count)
+            # if(current_entry['count']<count):
+            #     current_entry['count']=count
+                #current_entry['form']=f
+        rows.append(row)
+    while len(rows) != 0:
+        for row in rows:
+            max_element = 0
+            max_index = 0
+            for i , item in enumerate(row["values"]):
+                if max_element <= item:
+                    max_element = item
+                    max_index = i
+            if(isRowUnique(row["values"],max_element)):
+                list_of_dicts[row["index"]]["drugName"] = drug_name_list[max_index]
+                rows.remove(row)
+                rows = clearForms(rows,max_index)
     list_of_dicts = sorted(list_of_dicts, key=lambda x: len(x['drugName']), reverse=True)#sort dictionary by form length
     return list_of_dicts
 def map_drug_name_to_form(drug_name_list,forms_list,mat_to_map_form,material_list):#map drugName to form with highest count match
@@ -338,7 +399,7 @@ def extract_dos_con_format_from_mat(d,con,mat,std_mat,dosage_match,con_match,dos
     mat=mat.strip()
     if(len(d)==0 and len(con)==0 ):
         # dosage_match = re.findall('\d+\.?\d*\s?u\/?\-?\d*\.?\d*\s?u|\d+\.?\d*\/?\-?\d*\.?\d*\s?u|\d+\.?\d*\s?g\/?\-?\d*\.?\d*\s?g|\d+\.?\d*\/?\-?\d*\.?\d*\s?g|\d+\.?\d*\s?mcg\/?\-?\d*\.?\d*\s?mcg|\d+\.?\d*\/?\-?\d*\.?\d*\s?mcg|\d+\.?\d*\s?IU\/?\-?\d*\.?\d*\s?IU|\d+\.?\d*\s?IU\/?mL|\d+\.?\d*\/?\-?\d*\.?\d*\s?IU|\d+\.?\d*\s?mL\/?\-?\d*\.?\d*\s?mL|\d+\.?\d*\/?\-?\d*\.?\d*\s?mL|\d+\.?\d*\/?\-?\d*\.?\d*\s?ml|\d+\.?\d*\s?mg\/?\-?\d*\.?\d*\s?mg|\d+\.?\d*\/?\-?\d*\.?\d*\s?mg|\d+\.?\d*\s?iu\/?\-?\d*\.?\d*\s?iu|\d+\.?\d*\/?\-?\d*\.?\d*\s?iu|\d+\.?\d*\s?KIU\/?\-?\d*\.?\d*\s?KIU|\d+\.?\d*\/?\-?\d*\.?\d*\s?KIU|\d+\.?\d*\s?U\/?\-?\d*\.?\d*\s?U|\d+\.?\d*\/?\-?\d*\.?\d*\s?U|\d*\.?\d*\s?mL',mat, re.DOTALL)# Regex extracting 2 gummies as 2g
-        dosage_match = re.findall('[^\w](\d+\.?\d*\s?u\/?\-?\d*\.?\d*\s?u|\d+\.?\d*\/?\-?\d*\.?\d*\s?u|\d+\.?\d*\s?g\/?\-?\d*\.?\d*\s?g|\d+\.?\d*\/?\-?\d*\.?\d*\s?g|\d+\.?\d*\s?mcg\/?\-?\d*\.?\d*\s?mcg|\d+\.?\d*\s?IU\/?\-?\d*\.?\d*\s?IU|\d+\.?\d*\s?IU\/?mL|\d+\.?\d*\/?\-?\d*\.?\d*\s?IU|\d+\.?\d*\s?mL\/?\-?\d*\.?\d*\s?mL|\d+\.?\d*\/?\-?\d*\.?\d*\s?mL|\d+\.?\d*\/?\-?\d*\.?\d*\s?ml|\d+\.?\d*\s?mg\/?\-?\d*\.?\d*\s?mg|\d+\.?\d*\s?iu\/?\-?\d*\.?\d*\s?iu|\d+\.?\d*\/?\-?\d*\.?\d*\s?iu|\d+\.?\d*\s?KIU\/?\-?\d*\.?\d*\s?KIU|\d+\.?\d*\/?\-?\d*\.?\d*\s?KIU|\d+\.?\d*\s?U\/?\-?\d*\.?\d*\s?U|\d+\.?\d*\/?\-?\d*\.?\d*\s?U|\d*\.?\d*\s?mL)[^\w]'," "+mat+" ", re.DOTALL)
+        dosage_match = re.findall('[^\w](\d+\.?\d*\s?u\/?\-?\d*\.?\d*\s?u|\d+\.?\d*\/?\-?\d*\.?\d*\s?u|\d+\.?\d*\s?g\/?\-?\d*\.?\d*\s?g|\d+\.?\d*\/?\-?\d*\.?\d*\s?g|\d+\.?\d*\s?mcg\/?\-?\d*\.?\d*\s?mcg|\d+\.?\d*\s?IU\/?\-?\d*\.?\d*\s?IU|\d+\.?\d*\s?IU\/?mL|\d+\.?\d*\/?\-?\d*\.?\d*\s?IU|\d+\.?\d*\s?mL\/?\-?\d*\.?\d*\s?mL|\d+\.?\d*\/?\-?\d*\.?\d*\s?mL|\d+\.?\d*\/?\-?\d*\.?\d*\s?ml|\d+\.?\d*\s?mg\/?\-?\d*\.?\d*\s?mg|\d+\.?\d*\s?iu\/?\-?\d*\.?\d*\s?iu|\d+\.?\d*\/?\-?\d*\.?\d*\s?iu|\d+\.?\d*\s?KIU\/?\-?\d*\.?\d*\s?KIU|\d+\.?\d*\/?\-?\d*\.?\d*\s?KIU|\d+\.?\d*\s?U\/?\-?\d*\.?\d*\s?U|\d+\.?\d*\/?\-?\d*\.?\d*\s?U|\d+\.?\d*\s?mg|\d*\.?\d*\s?mL|\d+\.?\d*\s?mcg)[^\w]'," "+mat+" ", re.DOTALL)
         con_match = re.findall('\d+\.?\d*\s?%',mat, re.DOTALL)
         regex_to_match_mL=re.findall('\d*\.?\d*\s?mL',mat, re.DOTALL)
         if(len(dosage_match)!=0 and len(con_match)!=0):
@@ -593,10 +654,12 @@ def read_text_file(file):
             cims_class=item['details']['cimsClass']
             mims_class=item['details']['mimsClass']
             drugClassification=item['drugClassification']
+            individual_words = []
             if(drugName.find('/')!=-1):
                 drug_name = process_drug_name(drugName)
             else:
                 drug_name.append(drugName)
+            individual_words = [word for item in drug_name for word in item.split() if not all(char.isdigit() for char in word)]
             if(len(activeIngredients)!=0):
                 active_ingredients_list = split_material(activeIngredients,drug_name)
                 mat_to_map_list,material_list = get_material(active_ingredients_list,drug_name[0])
@@ -767,18 +830,22 @@ def read_text_file(file):
                             org_form=org_form.replace(';','')
                             org_form=org_form.replace(',','')
                             form=org_form
-                            if(len(drug_name)>1):
-                                drug_match_in_form=''
-                                for d in drug_name:
-                                        if(org_form.find(d)!=-1):
-                                            drug_match_in_form=form[:len(d)]
-#                                             current_drug=d
-                                print("form to be replaced : ",drug_match_in_form)
-                                form=form.replace(drug_match_in_form,'')
-                            else:
-                                # current_drug=drugName
-                                pattern = re.compile(re.escape(drug), re.IGNORECASE)
-                                form = pattern.sub('', form)
+                            for d in individual_words:
+                                pattern = re.compile(re.escape(d), re.IGNORECASE)
+                                form = pattern.sub('', form,1)
+                            print("form:",form)
+#                             if(len(drug_name)>1):
+#                                 drug_match_in_form=''
+#                                 for d in drug_name:
+#                                         if(org_form.find(d)!=-1):
+#                                             drug_match_in_form=form[:len(d)]
+# #                                             current_drug=d
+#                                 print("form to be replaced : ",drug_match_in_form)
+#                                 form=form.replace(drug_match_in_form,'')
+#                             else:
+#                                 # current_drug=drugName
+#                                 pattern = re.compile(re.escape(drug), re.IGNORECASE)
+#                                 form = pattern.sub('', form)
                             form=form.strip()
                             if form and form[0].isdigit():
                                 dos_match_from_form = re.findall('\d+\.?\d*\s?u\/?\-?\d*\.?\d*\s?u|\d+\.?\d*\s?mcg\/?\-?\d*\.?\d*\s?spray|\d+\.?\d*\s?mg\/?\-?\d*\.?\d*\s?g|\d+\.?\d*\s?mcg\/?\-?\d*\.?\d*\s?actuation|\d+\.?\d*\/?\d*\.?\d*\s?mcg\/?\-?\d*\.?\d*\s?dose|\d+\.?\d*\s?mcg\/?\-?\d*\.?\d*\s?mL|\d+\.?\d*\s?mcg\/?\-?\d*\.?\d*\s?metered spray|\d+\.?\d*\/?\-?\d*\.?\d*\s?u|\d+\.?\d*\s?g\/?\-?\d*\.?\d*\s?g|\d+\.?\d*\/?\-?\d*\.?\d*\s?g|\d+\.?\d*\s?mcg\/?\-?\d*\.?\d*\s?mcg|\d+\.?\d*\/?\-?\d*\.?\d*\s?mcg|\d+\.?\d*\s?IU\/?\-?\d*\.?\d*\s?IU|\d+\.?\d*\s?IU\/?mL|\d+\.?\d*\/?\-?\d*\.?\d*\s?IU|\d+\.?\d*\s?mL\/?\-?\d*\.?\d*\s?mL|\d+\.?\d*\/?\-?\d*\.?\d*\s?mL|\d+\.?\d*\/?\-?\d*\.?\d*\s?ml|\d+\.?\d*\s?mg\/?\-?\d*\.?\d*\s?mg\/?\-?\d*\.?\d*\s?mg|\d+\.?\d*\/?\-?\d*\.?\d*\/?\-?\d*\.?\d*\s?mg|\d+\.?\d*\s?iu\/?\-?\d*\.?\d*\s?iu|\d+\.?\d*\/?\-?\d*\.?\d*\s?iu|\d+\.?\d*\s?KIU\/?\-?\d*\.?\d*\s?KIU|\d+\.?\d*\/?\-?\d*\.?\d*\s?KIU|\d+\.?\d*\s?U\/?\-?\d*\.?\d*\s?U|\d+\.?\d*\/?\-?\d*\.?\d*\s?U|\d+\s?DHA',org_form, re.DOTALL)
@@ -790,6 +857,7 @@ def read_text_file(file):
                                             result+=m+"/"
                                         else:
                                             result=m
+                                        form=form.replace(m,'')
                                     d=result.strip('/')
                                     result=''
                                     for m in con_match_from_form:
@@ -797,12 +865,10 @@ def read_text_file(file):
                                             result+=m+"/"
                                         else:
                                             result=m
+                                        form=form.replace(m,'')
                                     con=result.strip('/')
-                                    form=form.replace(con,'')
                                     form=form.replace('w/w','')
                                     form=form.replace('w/v','')
-                                    form=form.replace(d,'')
-                                    form=form.replace(con,'')
                                     format_org=form
                                 elif(len(dos_match_from_form)!=0):
                                     con=''
@@ -812,8 +878,8 @@ def read_text_file(file):
                                             result+=m+"/"
                                         else:
                                             result=m
+                                        form=form.replace(m,'')
                                     d=result.strip('/')
-                                    format_org=form.replace(d,'')
                                 elif(len(con_match_from_form)!=0):
                                     d=''
                                     result=''
@@ -822,15 +888,15 @@ def read_text_file(file):
                                             result+=m+"/"
                                         else:
                                             result=m
+                                        form=form.replace(m,'')
                                     con=result.strip('/')
-                                    form=form.replace(con,'')
                                     form=form.replace('w/w','')
                                     form=form.replace('w/v','')
                                     format_org=form
                                 else:
                                     d=''
                                     con=''
-                                    remove_raw_num=re.findall(r"\d+",form)
+                                    remove_raw_num=re.findall(r"\d+\/?\d*|\d+\.?\d*",form)#Remove raw numbers from form
                                     if(remove_raw_num):
                                         for n in remove_raw_num:
                                             form=form.replace(n,'')
@@ -855,6 +921,13 @@ def read_text_file(file):
                                     format_org=form
                                     d=''
                                     con=''
+                            format_org = format_org.replace('/','')
+                            remove_raw_num=re.findall(r"\d+\/?\d*|\d+\.?\d*",format_org)#Remove raw numbers from form
+                            if(remove_raw_num):
+                                for n in remove_raw_num:
+                                    format_org=format_org.replace(n,'')
+                            format_org = format_org.strip()
+                            print("cleaned form:",format_org)
                             format_org=format_org.strip()
                             std_format=search(format_org)
                             if(std_format==None):
