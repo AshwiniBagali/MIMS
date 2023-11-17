@@ -620,26 +620,31 @@ with open('Vietnam.csv','w') as f:
     writer = csv.writer(f)
     writer.writerow(["brand","manufacturer","cims_class","material","standard_material","format_original","standard_format","concentration","dosage","uom","atc_code","atc_detail","amount","mims_class"])
 class CsvHeaders:
-    brand=[]    
-    manufacturer=[]
-    cimsClass=[]
-    atcCode=[]
-    atcDetail=[]
-    material=[]
-    dosage=[]
-    uom=[]
-    form=[]
-    products=[]
-    formater=[]
-    concentration=[]
-    format_original=[]
-    l=[]
-    std_material=[]
-    mimsClass=[]
-    amount=[]
+    def reset_to_initial_values(self):
+        self.brand=[]    
+        self.manufacturer=[]
+        self.cimsClass=[]
+        self.atcCode=[]
+        self.atcDetail=[]
+        self.material=[]
+        self.dosage=[]
+        self.uom=[]
+        self.form=[]
+        self.products=[]
+        self.formater=[]
+        self.concentration=[]
+        self.format_original=[]
+        self.l=[]
+        self.std_material=[]
+        self.mimsClass=[]
+        self.amount=[]
+        self.uom_dosage_list=[]
+        self.uom_quantity_list=[]
+        self.unit_price_list=[]
 def read_text_file(file):  
     with open(file) as f:
         csv_headers = CsvHeaders()
+        csv_headers.reset_to_initial_values()
         data= [json.loads(line) for line in f]    
         brand=[]    
         manufacturer=[]
