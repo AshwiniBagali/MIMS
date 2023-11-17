@@ -191,6 +191,7 @@ def map_form_to_mat(forms_list,mat_to_map_form,material_list,drug_name):#map for
         # arr = [[0]*len(forms_list)]*len(mat_to_map_form)
     rows =[]
     for j,f in enumerate(mat_to_map_form):
+        f = re.sub(r'(\d) (\D)', r'\1\2', f) #Remove space for mapping
         row = {
                 "index": j,
                 "values":[]
@@ -198,6 +199,7 @@ def map_form_to_mat(forms_list,mat_to_map_form,material_list,drug_name):#map for
         # current_entry=list_of_dicts[j]
         for k,a in enumerate(forms_list):
 #             a=a.lower()
+            # a = re.sub(r'(\d) (\D)', r'\1\2', a) #Remove space for mapping
             count=0
             words_in_form=a.split()
             for word in words_in_form:
@@ -373,6 +375,50 @@ def map_drug_name_to_form(drug_name_list,forms_list,mat_to_map_form,material_lis
                 rows = clearForms(rows,max_index) 
     list_of_dicts = sorted(list_of_dicts, key=lambda x: len(x['form']), reverse=True)#sort dictionary by form length
     return list_of_dicts
+    list_of_dicts = []
+    for i in range(len(forms_list)):
+        dictionary = {
+            "drugName": drug_name_list[i],
+            "count": 0,
+            "form":forms_list[i],
+            "activeIngredient":material_list[0],#No need to map material as it's only single material
+            "materialToMapForm":mat_to_map_form[0]
+        }
+        list_of_dicts.append(dictionary)
+    rows =[]
+    for j,f in enumerate(drug_name_list):
+        row = {
+                "index": j,
+                "values":[]
+            }
+        # current_entry=list_of_dicts[j]
+        for k,a in enumerate(forms_list):
+#             a=a.lower()
+            count=0
+            words_in_form=a.split()
+            for word in words_in_form:
+                if word.lower() in f.lower():
+                    count=count+1
+            row["values"].append(count)
+            # if(current_entry['count']<count):
+            #     current_entry['count']=count
+                #current_entry['form']=f
+        rows.append(row)
+    while len(rows) != 0:
+        for row in rows:
+            max_element = 0
+            max_index = 0
+            for i , item in enumerate(row["values"]):
+                if max_element <= item:
+                    max_element = item
+                    max_index = i
+            if(isRowUnique(row["values"],max_element)):
+                list_of_dicts[row["index"]]["form"] = forms_list[max_index]
+                rows.remove(row)
+                rows = clearForms(rows,max_index) 
+    list_of_dicts = sorted(list_of_dicts, key=lambda x: len(x['form']), reverse=True)#sort dictionary by form length
+    return list_of_dicts
+
 def get_matching_material(current_form,current_drug,list_of_dicts):#get matching material for cuurent form
     matching_mat=''
     material_to_map=''
@@ -594,8 +640,6 @@ def process_drug_name(drugName):
     if all(first_word in part for part in parts):
         for part in parts:
             drug_name.append(part)
-    else:
-        drug_name.append(drugName)
     return drug_name
 def split_drug_name(drugName):
     drug_name = []
@@ -610,8 +654,6 @@ def split_drug_name(drugName):
             else:
                 res = part
             drug_name.append(res)
-    else:
-        drug_name.append(drugName)
     return drug_name
 with open('MIMS Phillipines.csv','w') as file:
     writer = csv.writer(file)
@@ -620,26 +662,28 @@ with open('Phillipines.csv','w') as f:
     writer = csv.writer(f)
     writer.writerow(["brand","manufacturer","cims_class","material","standard_material","format_original","standard_format","concentration","dosage","uom","atc_code","atc_detail","amount","mims_class"])
 class CsvHeaders:
-    brand=[]    
-    manufacturer=[]
-    cimsClass=[]
-    atcCode=[]
-    atcDetail=[]
-    material=[]
-    dosage=[]
-    uom=[]
-    form=[]
-    products=[]
-    formater=[]
-    concentration=[]
-    format_original=[]
-    l=[]
-    std_material=[]
-    mimsClass=[]
-    amount=[]
+    def reset_to_initial_values(self):
+        self.brand=[]    
+        self.manufacturer=[]
+        self.cimsClass=[]
+        self.atcCode=[]
+        self.atcDetail=[]
+        self.material=[]
+        self.dosage=[]
+        self.uom=[]
+        self.form=[]
+        self.products=[]
+        self.formater=[]
+        self.concentration=[]
+        self.format_original=[]
+        self.l=[]
+        self.std_material=[]
+        self.mimsClass=[]
+        self.amount=[]
 def read_text_file(file):  
     with open(file) as f:
         csv_headers = CsvHeaders()
+        csv_headers.reset_to_initial_values()
         data= [json.loads(line) for line in f]    
         brand=[]    
         manufacturer=[]
@@ -913,11 +957,14 @@ def read_text_file(file):
                             #         if(form.find(res_str)!=-1):
                             #             form=form.replace(res_str,'')
                             if(org_form.find('%')!=-1):
-                                dos_match_from_form = re.findall('[^\w](\d+\.?\d*\s?mg\/?\d*\.?\d*\s?IU|\d+\.?\d*\s?IU\/?\d*\.?\d*\s?ml|\d+\.?\d*\s?IU\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?g\/?\d*\.?\d*\s?g|\d+\.?\d*\s?mcg\/?\d*\.?\d*\s?dose|\d+\.?\d*\s?mcg\/?\d*\.?\d*\s?hour|\d+\.?\d*\s?mg\/?\d*\.?\d*\s?g|\d+\.?\d*\s?mcg\/?\d*\.?\d*\s?g|\d+\.?\d*\s?units\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?mg\/?\d*\.?\d*\s?g|\d+\.?\d*\s?mg\/?\d*\.?\d*\s?ml|\d+\.?\d*\s?mg\/?\d*\.?\d*\s?mL|\d+\s*mg(?:\/?(?:\d*\s*mL)?)?|\d+\.?\d*\s?g|\d+\.?\d*?MIU|\d+\.?\d*\s?IU|\d+\.?\d*\s?U|\d+\.?\d*\s?mcg|\d+\.?\d*\s?mL|\d+\.?\d*\s?u|\d+\.?\d*\s?U|\d+\.?\d+/\d+\.?\d+|\b\d+\b)[^\w]'," "+form_without_drug_name+" ", re.DOTALL)
+                                # dos_match_from_form = re.findall('[^\w](\d+\.?\d*\s?mg\/?\d*\.?\d*\s?IU|\d+\.?\d*\s?IU\/?\d*\.?\d*\s?ml|\d+\.?\d*\s?IU\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?g\/?\d*\.?\d*\s?g|\d+\.?\d*\s?mcg\/?\d*\.?\d*\s?dose|\d+\.?\d*\s?mcg\/?\d*\.?\d*\s?hour|\d+\.?\d*\s?mg\/?\d*\.?\d*\s?g|\d+\.?\d*\s?mcg\/?\d*\.?\d*\s?g|\d+\.?\d*\s?units\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?mg\/?\d*\.?\d*\s?g|\d+\.?\d*\s?mg\/?\d*\.?\d*\s?ml|\d+\.?\d*\s?mg\/?\d*\.?\d*\s?mL|\d+\s*mg(?:\/?(?:\d*\s*mL)?)?|\d+\.?\d*\s?g|\d+\.?\d*?MIU|\d+\.?\d*\s?IU|\d+\.?\d*\s?U|\d+\.?\d*\s?mcg|\d+\.?\d*\s?mL|\d+\.?\d*\s?u|\d+\.?\d*\s?U|\d+\.?\d+/\d+\.?\d+|\b\d+\b)[^\w]'," "+form_without_drug_name+" ", re.DOTALL)
+                                dos_match_from_form = re.findall('[^\w](\d+\.?\d*\s?LSU\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?PFU\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?mcg\/?\d*\.?\d*\s?mcg|\d+\.?\d*\s?mcg\/?\d*\.?\d*\s?mg|\d+\.?\d*\s?u\/?\d*\.?\d*\s?g|\d+\.?\d*\s?mL\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?mg\/?\d*\.?\d*\s?IU|\d+\.?\d*\s?g\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?IU\/?\d*\.?\d*\s?ml|\d+\.?\d*\s?IU\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?g\/?\d*\.?\d*\s?g|\d+\.?\d*\s?mcg\/?\d*\.?\d*\s?dose|\d+\.?\d*\s?mcg\/?\d*\.?\d*\s?hour|\d+\.?\d*\s?mg\/?\d*\.?\d*\s?g|\d+\.?\d*\s?mcg\/?\d*\.?\d*\s?g|\d+\.?\d*\s?units\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?mg\/?\d*\.?\d*\s?g|\d+\.?\d*\s?mg\/?\d*\.?\d*\s?ml|\d+\.?\d*\s?mg\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?mg(?:\/\d+\.?\d*\s?mg)*|\d+\.?\d*\s*MIU|\d+\.?\d*\s?MU\/?\d*\.?\d*\s?mL|\d+.?\d*\/?\d*.?\d*\/?\d*.?\d*\s*mg(?:\/?(?:\d*.?\d*\s*mL)?)?|\d+.?\d*\s*g(?:\/?(?:\d*.?\d*\s*mL)?)?(?:\/?(?:\d*.?\d*\s*L)?)?|\d+\.?\d*?MIU|\d+\s*IU(?:\/?(?:\d*.?\d*\s*mL)?)?|\d+\.?\d*\s?U\/?mL|\d+.?\d*\/?\d*\s*mcg(?:\/?(?:\d*.?\d*\s*mL)?)?|\d+\.?\d*\s?mL|\d+\.?\d*\s?U|\d+\.?\d*\s?u|\d+\.?\d*\/?\-?\d*\.?\d*\/?\-?\d*\.?\d*\s?mcg|\d+\.?\d*\s?LSU)[^\w]'," "+form_without_drug_name+" ", re.DOTALL)
                                 con_match_from_form = re.findall('\d+\.?\d*\s?%',org_form, re.DOTALL)
                             else:
                                 con_match_from_form = []
-                                dos_match_from_form = re.findall('[^\w](\d+\.?\d*\s?mg\/?\d*\.?\d*\s?IU|\d+\.?\d*\s?IU\/?\d*\.?\d*\s?ml|\d+\.?\d*\s?IU\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?g\/?\d*\.?\d*\s?g|\d+\.?\d*\s?mcg\/?\d*\.?\d*\s?dose|\d+\.?\d*\s?mcg\/?\d*\.?\d*\s?hour|\d+\.?\d*\s?mg\/?\d*\.?\d*\s?g|\d+\.?\d*\s?mcg\/?\d*\.?\d*\s?g|\d+\.?\d*\s?units\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?mg\/?\d*\.?\d*\s?g|\d+\.?\d*\s?mg\/?\d*\.?\d*\s?ml|\d+\.?\d*\s?mg\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?mg(?:\/\d+\.?\d*\s?mg)*|\d+\.?\d*\s*MIU|\d+\.?\d*\s?MU\/?\d*\.?\d*\s?mL|\d+.?\d*\/?\d*.?\d*\/?\d*.?\d*\s*mg(?:\/?(?:\d*.?\d*\s*mL)?)?|\d+.?\d*\s*g(?:\/?(?:\d*.?\d*\s*mL)?)?(?:\/?(?:\d*.?\d*\s*L)?)?|\d+\.?\d*?MIU|\d+\s*IU(?:\/?(?:\d*.?\d*\s*mL)?)?|\d+\.?\d*\s?U\/?mL|\d+.?\d*\/?\d*\s*mcg(?:\/?(?:\d*.?\d*\s*mL)?)?|\d+\.?\d*\s?mL|\d+\.?\d*\s?U|\d+\.?\d*\s?u|\d+\.?\d+/\d+\.?\d+|\d+\.?\d*/?\d+\.?\d*|\d+\.?\d*)[^\w]'," "+form_without_drug_name+" ", re.DOTALL)
+                                dos_match_from_form = re.findall('[^\w](\d+\.?\d*\s?LSU\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?PFU\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?mg\/?\d*\.?\d*\s?mg\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?mg\/?\d*\.?\d*\s?sprays|\d+\.?\d*\s?mcg\/?\d*\.?\d*\s?mg\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?mcg\/?\d*\.?\d*\s?mcg\/?\d*\.?\d*\s?actuation|\d+\.?\d*\s?mcg\/?\d*\.?\d*\s?mcg|\d+\.?\d*\s?mcg\/?\d*\.?\d*\s?mg|\d+\.?\d*\s?u\/?\d*\.?\d*\s?g|\d+\.?\d*\s?mL\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?mg\/?\d*\.?\d*\s?IU|\d+\.?\d*\s?g\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?IU\/?\d*\.?\d*\s?ml|\d+\.?\d*\s?IU\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?g\/?\d*\.?\d*\s?g|\d+\.?\d*\s?mcg\/?\d*\.?\d*\s?dose|\d+\.?\d*\s?mcg\/?\d*\.?\d*\s?hour|\d+\.?\d*\s?mg\/?\d*\.?\d*\s?g|\d+\.?\d*\s?mcg\/?\d*\.?\d*\s?g|\d+\.?\d*\s?units\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?mg\/?\d*\.?\d*\s?g|\d+\.?\d*\s?mg\/?\d*\.?\d*\s?ml|\d+\.?\d*\s?mg\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?mg(?:\/\d+\.?\d*\s?mg)*|\d+\.?\d*\s*MIU|\d+\.?\d*\s?MU\/?\d*\.?\d*\s?mL|\d+.?\d*\/?\d*.?\d*\/?\d*.?\d*\s*mg(?:\/?(?:\d*.?\d*\s*mL)?)?|\d+.?\d*\s*g(?:\/?(?:\d*.?\d*\s*mL)?)?(?:\/?(?:\d*.?\d*\s*L)?)?|\d+\.?\d*?MIU|\d+\s*IU(?:\/?(?:\d*.?\d*\s*mL)?)?|\d+\.?\d*\s?U\/?mL|\d+.?\d*\/?\d*\s*mcg(?:\/?(?:\d*.?\d*\s*mL)?)?|\d+\.?\d*\s?mL|\d+\.?\d*\s?U|\d+\.?\d*\s?u|\d+\.?\d*\/?\-?\d*\.?\d*\/?\-?\d*\.?\d*\s?mcg|\d+\.?\d*\s?LSU|\d+\.?\d*\s?IU)[^\w]'," "+form_without_drug_name+" ", re.DOTALL)
+                                # dos_match_from_form = re.findall('[^\w](\d+\.?\d*\s?mg\/?\d*\.?\d*\s?mg\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?mg\/?\d*\.?\d*\s?sprays|\d+\.?\d*\s?mcg\/?\d*\.?\d*\s?mg\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?mcg\/?\d*\.?\d*\s?mcg\/?\d*\.?\d*\s?actuation|\d+\.?\d*\s?mcg\/?\d*\.?\d*\s?mcg|\d+\.?\d*\s?mcg\/?\d*\.?\d*\s?mg|\d+\.?\d*\s?u\/?\d*\.?\d*\s?g|\d+\.?\d*\s?mL\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?mg\/?\d*\.?\d*\s?IU|\d+\.?\d*\s?g\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?IU\/?\d*\.?\d*\s?ml|\d+\.?\d*\s?IU\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?g\/?\d*\.?\d*\s?g|\d+\.?\d*\s?mcg\/?\d*\.?\d*\s?dose|\d+\.?\d*\s?mcg\/?\d*\.?\d*\s?hour|\d+\.?\d*\s?mg\/?\d*\.?\d*\s?g|\d+\.?\d*\s?mcg\/?\d*\.?\d*\s?g|\d+\.?\d*\s?units\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?mg\/?\d*\.?\d*\s?g|\d+\.?\d*\s?mg\/?\d*\.?\d*\s?ml|\d+\.?\d*\s?mg\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?mg(?:\/\d+\.?\d*\s?mg)*|\d+\.?\d*\s*MIU|\d+\.?\d*\s?MU\/?\d*\.?\d*\s?mL|\d+.?\d*\/?\d*.?\d*\/?\d*.?\d*\s*mg(?:\/?(?:\d*.?\d*\s*mL)?)?|\d+.?\d*\s*g(?:\/?(?:\d*.?\d*\s*mL)?)?(?:\/?(?:\d*.?\d*\s*L)?)?|\d+\.?\d*?MIU|\d+\s*IU(?:\/?(?:\d*.?\d*\s*mL)?)?|\d+\.?\d*\s?U\/?mL|\d+.?\d*\/?\d*\s*mcg(?:\/?(?:\d*.?\d*\s*mL)?)?|\d+\.?\d*\s?mL|\d+\.?\d*\s?U|\d+\.?\d*\s?u|\d+\.?\d*\/?\-?\d*\.?\d*\/?\-?\d*\.?\d*\s?mcg|\d+\.?\d+/\d+\.?\d+|\d+\.?\d*/?\d+\.?\d*|\d+\.?\d*)[^\w]'," "+form_without_drug_name+" ", re.DOTALL)#includes number also
+                                print("dosage match from form:",dos_match_from_form,form_without_drug_name)
                             if(len(dos_match_from_form)!=0 and len(con_match_from_form)!=0):
                                 result=''
                                 for cm in con_match_from_form:
@@ -1105,5 +1152,5 @@ def search(form):
             standard_format=doc['_source']['format']
             return standard_format
 for file in os.listdir():
-    if file.__eq__("mims_m.jsonl"):
+    if file.startswith("mims_"):
         read_text_file(file)
