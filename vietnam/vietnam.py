@@ -89,6 +89,7 @@ def get_material(activeIngredients,drugName):#
             item = item.replace('< /em>','')
             item = item.replace('<strong>','')
             item = item.replace('</strong>','')
+            item = item.replace('\u200b','')
             item = item.strip()
             item = item.strip('.')
             item = item.strip()
@@ -191,6 +192,7 @@ def map_form_to_mat(forms_list,mat_to_map_form,material_list,drug_name):#map for
         # arr = [[0]*len(forms_list)]*len(mat_to_map_form)
     rows =[]
     for j,f in enumerate(mat_to_map_form):
+        f = re.sub(r'(\d) (\D)', r'\1\2', f) #Remove space for mapping
         row = {
                 "index": j,
                 "values":[]
@@ -198,6 +200,7 @@ def map_form_to_mat(forms_list,mat_to_map_form,material_list,drug_name):#map for
         # current_entry=list_of_dicts[j]
         for k,a in enumerate(forms_list):
 #             a=a.lower()
+            # a = re.sub(r'(\d) (\D)', r'\1\2', a) #Remove space for mapping
             count=0
             words_in_form=a.split()
             for word in words_in_form:
@@ -238,18 +241,18 @@ def map_form_to_mat(forms_list,mat_to_map_form,material_list,drug_name):#map for
     return list_of_dicts
 
 def map_drug_name_to_mat_and_form(list_of_dicts,drug_name):#map drugName to material and form with highest count match   
-    for c in list_of_dicts:
-        c['count'] = 0 
-    for j,d in enumerate(drug_name):
-        for k, current_entry in enumerate(list_of_dicts):
-            count=0
-            words_in_drug_name= d.split()
-            for word in words_in_drug_name:
-                if word.lower() in current_entry["form"].lower():
-                    count=count+1
-            if(current_entry['count']<count):
-                current_entry['count']=count
-                current_entry['drugName']= d
+    # for c in list_of_dicts:
+    #     c['count'] = 0 
+    # for j,d in enumerate(drug_name):
+    #     for k, current_entry in enumerate(list_of_dicts):
+    #         count=0
+    #         words_in_drug_name= d.split()
+    #         for word in words_in_drug_name:
+    #             if word.lower() in current_entry["form"].lower():
+    #                 count=count+1
+    #         if(current_entry['count']<count):
+    #             current_entry['count']=count
+    #             current_entry['drugName']= d
     # not_found_index=0
     # list_of_dicts = sorted(list_of_dicts, key=lambda x: x['count'], reverse=True)#sort dictionary by highest count match
     # for l,item in enumerate(list_of_dicts):
@@ -259,8 +262,41 @@ def map_drug_name_to_mat_and_form(list_of_dicts,drug_name):#map drugName to mate
     #         not_found_index=l
     # if(len(drug_name)!=0):
     #     list_of_dicts[not_found_index]['drugName']=drug_name[0]
-    list_of_dicts = sorted(list_of_dicts, key=lambda x: len(x['drugName']), reverse=True)#sort dictionary by drugName length
-    print("mapped dictionary with drugName: ",list_of_dicts)
+    # list_of_dicts = sorted(list_of_dicts, key=lambda x: len(x['drugName']), reverse=True)#sort dictionary by drugName length
+    # print("mapped dictionary with drugName: ",list_of_dicts)
+    # return list_of_dicts
+    rows =[]
+    for j,f in enumerate(drug_name):
+        row = {
+                "index": j,
+                "values":[]
+            }
+        # current_entry=list_of_dicts[j]
+        for k,a in enumerate(list_of_dicts):
+#             a=a.lower()
+            count=0
+            words_in_form=a["form"].split()
+            for word in words_in_form:
+                if word.lower() in f.lower():
+                    count=count+1
+            row["values"].append(count)
+            # if(current_entry['count']<count):
+            #     current_entry['count']=count
+                #current_entry['form']=f
+        rows.append(row)
+    while len(rows) != 0:
+        for row in rows:
+            max_element = 0
+            max_index = 0
+            for i , item in enumerate(row["values"]):
+                if max_element <= item:
+                    max_element = item
+                    max_index = i
+            if(isRowUnique(row["values"],max_element)):
+                list_of_dicts[row["index"]]["drugName"] = drug_name[max_index]
+                rows.remove(row)
+                rows = clearForms(rows,max_index)
+    list_of_dicts = sorted(list_of_dicts, key=lambda x: len(x['drugName']), reverse=True)
     return list_of_dicts
 def map_drug_name_to_mat(drug_name_list,mat_to_map_drug,material_list):#map drugName to material with highest count match
     list_of_dicts = []
@@ -529,6 +565,7 @@ def add_manual(csv_headers,drug,manf,cims_class,mims_class,atc_code_list,atc_lis
             csv_headers.atcCode.append('')
         if(len(atc_list)!=0):
             atc=atc_list[0]
+            atc=atc.replace('\u200b','')
             atc=atc.replace(';','')
             atc=atc.replace(',','')
             atc=atc.replace('  ',' ')
@@ -561,8 +598,6 @@ def process_drug_name(drugName):
     if all(first_word in part for part in parts):
         for part in parts:
             drug_name.append(part)
-    else:
-        drug_name.append(drugName)
     return drug_name
 def split_drug_name(drugName):
     drug_name = []
@@ -577,8 +612,6 @@ def split_drug_name(drugName):
             else:
                 res = part
             drug_name.append(res)
-    else:
-        drug_name.append(drugName)
     return drug_name
 with open('MIMS Vietnam.csv','w') as file:
     writer = csv.writer(file)
@@ -658,6 +691,7 @@ def read_text_file(file):
             drugName = drugName.replace('<em>','')
             drugName = drugName.replace('</em>','')
             drugName = drugName.replace('&quot;','"')
+            drugName = drugName.replace('\u200b','')
             atc_code_list = item['details']['atcCode']
             atc_list = item['details']['atc']
             manf = item['details']['manufacturer']
@@ -672,6 +706,7 @@ def read_text_file(file):
                     drug_name = split_drug_name(drugName)
             if(len(drug_name)<=1):
                 drug_name.append(drugName)
+            print("drug_name",drug_name)
             if(len(activeIngredients)!=0):
                 active_ingredients_list = split_material(activeIngredients,drug_name)
                 mat_to_map_list,material_list = get_material(active_ingredients_list,drug_name[0])
@@ -702,6 +737,7 @@ def read_text_file(file):
                                     atcCode.append('')
                                 if(len(atc_list)!=0):
                                     atc=atc_list[0]
+                                    atc=atc.replace('\u200b','')
                                     atc=atc.replace(';','')
                                     atc=atc.replace(',','')
                                     atc=atc.replace('  ',' ')
@@ -748,6 +784,7 @@ def read_text_file(file):
                                             atcCode.append('')
                                         if(len(atc_list)!=0):
                                             atc=atc_list[0]
+                                            atc=atc.replace('\u200b','')
                                             atc=atc.replace(';','')
                                             atc=atc.replace(',','')
                                             atc=atc.replace('  ',' ')
@@ -796,6 +833,7 @@ def read_text_file(file):
                                 atcCode.append('')
                             if(len(atc_list)!=0):
                                 atc=atc_list[0]
+                                atc=atc.replace('\u200b','')
                                 atc=atc.replace(';','')
                                 atc=atc.replace(',','')
                                 atc=atc.replace('  ',' ')
@@ -823,11 +861,14 @@ def read_text_file(file):
                             list_of_dicts = map_form_to_mat(forms_list,mat_to_map_list,material_list,drug_name)
                         if(len(drug_name)>1 and len(material_list)<=1):#map drugName to form in case of single material
                             list_of_dicts = map_drug_name_to_form(drug_name,forms_list,mat_to_map_list,material_list)
+                            print("mapped dictionary:",list_of_dicts)
                 for drug in drug_name:
                     for product in products:
                         packaging = product['packaging']
                         std_packaging = remove_substring_in_brackets(packaging)
                         org_form = product['form']
+                        org_form = org_form.replace('\u200b','')
+                        org_form = org_form.replace(',','')
                         form = org_form
                         form_without_drug_name = org_form
                         replaced=std_packaging.replace('&#39;s','')
@@ -842,8 +883,10 @@ def read_text_file(file):
                             if(len(drug_name)>1):
                                 drug_match_in_form=''
                                 for d in drug_name:
-                                        if(org_form.find(d)!=-1):
-                                            drug_match_in_form=form[org_form.find(d):org_form.find(d)+len(d)]
+                                        d = d.lower()
+                                        # org_form = org_form.lower()
+                                        if(org_form.lower().find(d)!=-1):
+                                            drug_match_in_form=form[org_form.lower().find(d):org_form.find(d)+len(d)]
                                             best_match=drug_match_in_form
 #                                             current_drug=d
                                 print("form to be replaced : ",drug_match_in_form)
@@ -862,8 +905,6 @@ def read_text_file(file):
                                     form = pattern.sub('', form)
                                     form_without_drug_name = pattern.sub('', org_form)
                                 # org_form = pattern.sub('', org_form)
-                            org_form = org_form.replace(',','')
-                            form_without_drug_name = form_without_drug_name.replace(',','')
                             # else:
                             #     if(re.search(r"\d",drug)!=None):#replace partial drugName if it is present in drugName
                             #         form_index=re.search(r"\d",drug)
@@ -933,6 +974,7 @@ def read_text_file(file):
                                                 atcCode.append('')
                                             if(len(atc_list)!=0):
                                                 atc=atc_list[0]
+                                                atc=atc.replace('\u200b','')
                                                 atc=atc.replace(';','')
                                                 atc=atc.replace(',','')
                                                 atc=atc.replace('  ',' ')
@@ -976,6 +1018,7 @@ def read_text_file(file):
                                             atcCode.append('')
                                         if(len(atc_list)!=0):
                                             atc=atc_list[0]
+                                            atc=atc.replace('\u200b','')
                                             atc=atc.replace(';','')
                                             atc=atc.replace(',','')
                                             atc=atc.replace('  ',' ')
@@ -1024,6 +1067,7 @@ def read_text_file(file):
                                     atcCode.append('')
                                 if(len(atc_list)!=0):
                                     atc=atc_list[0]
+                                    atc=atc.replace('\u200b','')
                                     atc=atc.replace(';','')
                                     atc=atc.replace(',','')
                                     atc=atc.replace('  ',' ')
@@ -1062,5 +1106,5 @@ def search(form):
             standard_format=doc['_source']['format']
             return standard_format
 for file in os.listdir():
-    if file.__eq__("test.jsonl"):
+    if file.startswith("mims_"):
         read_text_file(file)
