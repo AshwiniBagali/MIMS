@@ -467,13 +467,18 @@ def extract_dos_con_format_from_mat(d,con,mat,std_mat,dosage_match,con_match,dos
         std_mat = std_mat.replace(match,std_match)
     if(len(d)==0 and len(con)==0 ):
         # dosage_match = re.findall('\d+\.?\d*\s?u\/?\-?\d*\.?\d*\s?u|\d+\.?\d*\/?\-?\d*\.?\d*\s?u|\d+\.?\d*\s?g\/?\-?\d*\.?\d*\s?g|\d+\.?\d*\/?\-?\d*\.?\d*\s?g|\d+\.?\d*\s?mcg\/?\-?\d*\.?\d*\s?mcg|\d+\.?\d*\/?\-?\d*\.?\d*\s?mcg|\d+\.?\d*\s?IU\/?\-?\d*\.?\d*\s?IU|\d+\.?\d*\s?IU\/?mL|\d+\.?\d*\/?\-?\d*\.?\d*\s?IU|\d+\.?\d*\s?mL\/?\-?\d*\.?\d*\s?mL|\d+\.?\d*\/?\-?\d*\.?\d*\s?mL|\d+\.?\d*\/?\-?\d*\.?\d*\s?ml|\d+\.?\d*\s?mg\/?\-?\d*\.?\d*\s?mg|\d+\.?\d*\/?\-?\d*\.?\d*\s?mg|\d+\.?\d*\s?iu\/?\-?\d*\.?\d*\s?iu|\d+\.?\d*\/?\-?\d*\.?\d*\s?iu|\d+\.?\d*\s?KIU\/?\-?\d*\.?\d*\s?KIU|\d+\.?\d*\/?\-?\d*\.?\d*\s?KIU|\d+\.?\d*\s?U\/?\-?\d*\.?\d*\s?U|\d+\.?\d*\/?\-?\d*\.?\d*\s?U|\d*\.?\d*\s?mL',mat, re.DOTALL)# Regex extracting 2 gummies as 2g
-        dosage_match = re.findall('[^\w](\d+\.?\d*\s?u\/?\-?\d*\.?\d*\s?u|\d+\.?\d*\/?\-?\d*\.?\d*\s?u|\d+\.?\d*\s?g\/?\-?\d*\.?\d*\s?g|\d+\.?\d*\/?\-?\d*\.?\d*\s?g|\d+\.?\d*\s?mcg\/?\-?\d*\.?\d*\s?mcg|\d+\.?\d*\/?\-?\d*\.?\d*\s?mcg|\d+\.?\d*\s?IU\/?\-?\d*\.?\d*\s?IU|\d+\.?\d*\s?IU\/?mL|\d+\.?\d*\/?\-?\d*\.?\d*\s?IU|\d+\.?\d*\s?mL\/?\-?\d*\.?\d*\s?mL|\d+\.?\d*\/?\-?\d*\.?\d*\s?mL|\d+\.?\d*\/?\-?\d*\.?\d*\s?ml|\d+\.?\d*\s?mg\/?\-?\d*\.?\d*\s?mg|\d+\.?\d*\/?\-?\d*\.?\d*\s?mg|\d+\.?\d*\s?iu\/?\-?\d*\.?\d*\s?iu|\d+\.?\d*\/?\-?\d*\.?\d*\s?iu|\d+\.?\d*\s?KIU\/?\-?\d*\.?\d*\s?KIU|\d+\.?\d*\/?\-?\d*\.?\d*\s?KIU|\d+\.?\d*\s?U\/?\-?\d*\.?\d*\s?U|\d+\.?\d*\/?\-?\d*\.?\d*\s?U|\d*\.?\d*\s?mL|\d+\.?\d*\/?\-?\d*\.?\d*\s?MIU)[^\w]'," "+mat+" ", re.DOTALL)
-        con_match = re.findall('\d+\.?\d*\s?%',mat, re.DOTALL)
-        regex_to_match_mL=re.findall('\d*\.?\d*\s?mL',mat, re.DOTALL)
+        # dosage_match = re.findall('[^\w](\d+\.?\d*\s?u\/?\-?\d*\.?\d*\s?u|\d+\.?\d*\/?\-?\d*\.?\d*\s?u|\d+\.?\d*\s?g\/?\-?\d*\.?\d*\s?g|\d+\.?\d*\/?\-?\d*\.?\d*\s?g|\d+\.?\d*\s?mcg\/?\-?\d*\.?\d*\s?mcg|\d+\.?\d*\/?\-?\d*\.?\d*\s?mcg|\d+\.?\d*\s?IU\/?\-?\d*\.?\d*\s?IU|\d+\.?\d*\s?IU\/?mL|\d+\.?\d*\/?\-?\d*\.?\d*\s?IU|\d+\.?\d*\s?mL\/?\-?\d*\.?\d*\s?mL|\d+\.?\d*\/?\-?\d*\.?\d*\s?mL|\d+\.?\d*\/?\-?\d*\.?\d*\s?ml|\d+\.?\d*\s?mg\/?\-?\d*\.?\d*\s?mg|\d+\.?\d*\/?\-?\d*\.?\d*\s?mg|\d+\.?\d*\s?iu\/?\-?\d*\.?\d*\s?iu|\d+\.?\d*\/?\-?\d*\.?\d*\s?iu|\d+\.?\d*\s?KIU\/?\-?\d*\.?\d*\s?KIU|\d+\.?\d*\/?\-?\d*\.?\d*\s?KIU|\d+\.?\d*\s?U\/?\-?\d*\.?\d*\s?U|\d+\.?\d*\/?\-?\d*\.?\d*\s?U|\d*\.?\d*\s?mL|\d+\.?\d*\/?\-?\d*\.?\d*\s?MIU)[^\w]'," "+mat+" ", re.DOTALL)# was extracting per 400 mg/200 mg material1 400 mg & material2 200 mg       
+        temp_mat = mat
+        remove_duplicate_dosage = re.findall('\d+\.?\d*\s?mg\/?\-?\d*\.?\d*\s?mg',temp_mat,re.DOTALL)
+        if(len(remove_duplicate_dosage)!=0):
+            temp_mat = temp_mat.replace(remove_duplicate_dosage[0],'')
+        con_match = re.findall('\d+\.?\d*\s?%',temp_mat, re.DOTALL)
+        dosage_match = re.findall('[^\w](\d+\.?\d*\s?u\/?\-?\d*\.?\d*\s?u|\d+\.?\d*\/?\-?\d*\.?\d*\s?u|\d+\.?\d*\s?g\/?\-?\d*\.?\d*\s?g|\d+\.?\d*\/?\-?\d*\.?\d*\s?g|\d+\.?\d*\s?mcg\/?\-?\d*\.?\d*\s?mcg|\d+\.?\d*\/?\-?\d*\.?\d*\s?mcg|\d+\.?\d*\s?IU\/?\-?\d*\.?\d*\s?IU|\d+\.?\d*\s?IU\/?mL|\d+\.?\d*\/?\-?\d*\.?\d*\s?IU|\d+\.?\d*\s?mL\/?\-?\d*\.?\d*\s?mL|\d+\.?\d*\/?\-?\d*\.?\d*\s?mL|\d+\.?\d*\/?\-?\d*\.?\d*\s?ml|\d+\.?\d*\/?\-?\d*\.?\d*\s?mg|\d+\.?\d*\s?iu\/?\-?\d*\.?\d*\s?iu|\d+\.?\d*\/?\-?\d*\.?\d*\s?iu|\d+\.?\d*\s?KIU\/?\-?\d*\.?\d*\s?KIU|\d+\.?\d*\/?\-?\d*\.?\d*\s?KIU|\d+\.?\d*\s?U\/?\-?\d*\.?\d*\s?U|\d+\.?\d*\/?\-?\d*\.?\d*\s?U|\d*\.?\d*\s?mL|\d+\.?\d*\/?\-?\d*\.?\d*\s?MIU)[^\w]'," "+temp_mat+" ", re.DOTALL)
+        regex_to_match_mL=re.findall('\d*\.?\d*\s?mL',temp_mat, re.DOTALL)
         if(len(dosage_match)!=0 and len(con_match)!=0):
             if(len(regex_to_match_mL)!=0):
                 per_dosage=''
-                if(mat.startswith('Per '+regex_to_match_mL[0].strip())):
+                if(temp_mat.startswith('Per '+regex_to_match_mL[0].strip())):
                     per_dosage=dosage_match.pop(0)
                     dosage_match.append(per_dosage)
             result=''
@@ -495,7 +500,7 @@ def extract_dos_con_format_from_mat(d,con,mat,std_mat,dosage_match,con_match,dos
         elif(len(dosage_match)!=0):
             if(len(regex_to_match_mL)!=0):
                 per_dosage=''
-                if(mat.startswith('Per '+regex_to_match_mL[0].strip())):
+                if(temp_mat.startswith('Per '+regex_to_match_mL[0].strip())):
                     per_dosage=dosage_match.pop(0)
                     dosage_match.append(per_dosage)
             result=''
@@ -818,8 +823,6 @@ def read_text_file(file):
             con_match_in_mat=''
             dos_match_from_form=''
             con_match_from_form=''
-            dos_match_from_packaging=''
-            con_match_from_packaging=''
             format_match=''
             format_org=''
             std_format=''
@@ -830,7 +833,7 @@ def read_text_file(file):
             std_uom=''
             std_amount = ''
             drug_name=[]
-            activeIngredientsList=[]
+            individual_words=[]
             is_length_to_map_equal = True
             print("--------------------------------------------------------------------------------",item['drugName'])
             products = item['details']['products']
@@ -1045,15 +1048,20 @@ def read_text_file(file):
                             uom_dosage,quantity,unit_price,std_uom = get_uom_details(std_amount,std_uom)
                             std_uom=std_uom.strip()
                             if(len(drug_name)>1):
-                                drug_match_in_form=''
-                                for d in drug_name:
-                                        if(org_form.find(d)!=-1):
-                                            drug_match_in_form=form[org_form.find(d):org_form.find(d)+len(d)]
-                                            best_match=drug_match_in_form
-#                                             current_drug=d
-                                print("form to be replaced : ",drug_match_in_form)
-                                form = form.replace(drug_match_in_form,'')
-                                form_without_drug_name = form_without_drug_name.replace(drug_match_in_form,'')
+                                individual_words = [word for item in drug_name for word in item.split() if not all(char.isdigit() for char in word)]
+#                                 drug_match_in_form=''
+#                                 for d in drug_name:
+#                                         if(org_form.find(d)!=-1):
+#                                             drug_match_in_form=form[org_form.find(d):org_form.find(d)+len(d)]
+#                                             best_match=drug_match_in_form
+# #                                             current_drug=d
+#                                 print("form to be replaced : ",drug_match_in_form)
+#                                 form = form.replace(drug_match_in_form,'')
+#                                 form_without_drug_name = form_without_drug_name.replace(drug_match_in_form,'')
+                                for i_w in individual_words:
+                                    pattern = re.compile(re.escape(i_w), re.IGNORECASE)
+                                    form = pattern.sub('', form,1)
+                                    form_without_drug_name = form
                             else:
                                 if(org_form.find(drug)==-1):
                                     print("replace partial drugName")
@@ -1083,7 +1091,7 @@ def read_text_file(file):
                                 con_match_from_form = re.findall('\d+\.?\d*\s?%',org_form, re.DOTALL)
                             else:
                                 con_match_from_form = []
-                                dos_match_from_form = re.findall('[^\w](\d+\.?\d*\s?LSU\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?PFU\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?mg\/?\d*\.?\d*\s?mg\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?mg\/?\d*\.?\d*\s?sprays|\d+\.?\d*\s?mcg\/?\d*\.?\d*\s?mg\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?mcg\/?\d*\.?\d*\s?mcg\/?\d*\.?\d*\s?actuation|\d+\.?\d*\s?mcg\/?\d*\.?\d*\s?mcg|\d+\.?\d*\s?mcg\/?\d*\.?\d*\s?mg|\d+\.?\d*\s?u\/?\d*\.?\d*\s?g|\d+\.?\d*\s?mL\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?mg\/?\d*\.?\d*\s?IU|\d+\.?\d*\s?g\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?IU\/?\d*\.?\d*\s?ml|\d+\.?\d*\s?IU\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?g\/?\d*\.?\d*\s?g|\d+\.?\d*\s?mcg\/?\d*\.?\d*\s?dose|\d+\.?\d*\s?mcg\/?\d*\.?\d*\s?hour|\d+\.?\d*\s?mg\/?\d*\.?\d*\s?g|\d+\.?\d*\s?mcg\/?\d*\.?\d*\s?g|\d+\.?\d*\s?units\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?mg\/?\d*\.?\d*\s?g|\d+\.?\d*\s?mg\/?\d*\.?\d*\s?ml|\d+\.?\d*\s?mg\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?mg(?:\/\d+\.?\d*\s?mg)*|\d+\.?\d*\s*MIU|\d+\.?\d*\s?MU\/?\d*\.?\d*\s?mL|\d+.?\d*\/?\d*.?\d*\/?\d*.?\d*\s*mg(?:\/?(?:\d*.?\d*\s*mL)?)?|\d+.?\d*\s*g(?:\/?(?:\d*.?\d*\s*mL)?)?(?:\/?(?:\d*.?\d*\s*L)?)?|\d+\.?\d*?MIU|\d+\s*IU(?:\/?(?:\d*.?\d*\s*mL)?)?|\d+\.?\d*\s?U\/?mL|\d+.?\d*\/?\d*\s*mcg(?:\/?(?:\d*.?\d*\s*mL)?)?|\d+\.?\d*\s?mL|\d+\.?\d*\s?U|\d+\.?\d*\s?u|\d+\.?\d*\/?\-?\d*\.?\d*\/?\-?\d*\.?\d*\s?mcg|\d+\.?\d*\s?LSU|\d+\.?\d*\s?IU)[^\w]'," "+form_without_drug_name+" ", re.DOTALL)
+                                dos_match_from_form = re.findall('[^\w](\d+\.?\d*\s?u\/?\d*\.?\d*\s?mL\s?\+\s?\d+\.?\d*\s?mg\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?u\/?\d*\.?\d*\s?mL\s?\+\s?\d+\.?\d*\s?mcg\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?LSU\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?PFU\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?mg\/?\d*\.?\d*\s?mg\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?mg\/?\d*\.?\d*\s?sprays|\d+\.?\d*\s?mcg\/?\d*\.?\d*\s?mg\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?(?:mcg\/?)?\d*\.?\d*\s?mcg?\/?\d*\.?\d*\s?actuation|\d+\.?\d*\s?mcg\/?\d*\.?\d*\s?mcg|\d+\.?\d*\s?mcg\/?\d*\.?\d*\s?mg|\d+\.?\d*\s?u\/?\d*\.?\d*\s?g|\d+\.?\d*\s?u\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?mL\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?mg\/?\d*\.?\d*\s?IU|\d+\.?\d*\s?g\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?IU\/?\d*\.?\d*\s?ml|\d+\.?\d*\s?IU\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?g\/?\d*\.?\d*\s?g|\d+\.?\d*\s?mcg\/?\d*\.?\d*\s?dose|\d+\.?\d*\s?mcg\/?\d*\.?\d*\s?hour|\d+\.?\d*\s?mg\/?\d*\.?\d*\s?g|\d+\.?\d*\s?mcg\/?\d*\.?\d*\s?g|\d+\.?\d*\s?units\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?mg\/?\d*\.?\d*\s?g|\d+\.?\d*\s?mg\/?\d*\.?\d*\s?ml|\d+\.?\d*\s?mg\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?mg(?:\/\d+\.?\d*\s?mg)*|\d+\.?\d*\s*MIU|\d+\.?\d*\s?MU\/?\d*\.?\d*\s?mL|\d+.?\d*\/?\d*.?\d*\/?\d*.?\d*\s*mg(?:\/?(?:\d*.?\d*\s*mL)?)?|\d+.?\d*\s*g(?:\/?(?:\d*.?\d*\s*mL)?)?(?:\/?(?:\d*.?\d*\s*L)?)?|\d+\.?\d*?MIU|\d+\s*IU(?:\/?(?:\d*.?\d*\s*mL)?)?|\d+\.?\d*\s?U\/?mL|\d+.?\d*\/?\d*\s*mcg(?:\/?(?:\d*.?\d*\s*mL)?)?|\d+\.?\d*\s?mL|\d+\.?\d*\s?U|\d+\.?\d*\s?u|\d+\.?\d*\/?\-?\d*\.?\d*\/?\-?\d*\.?\d*\s?mcg|\d+\.?\d*\s?LSU|\d+\.?\d*\s?IU)[^\w]'," "+form_without_drug_name+" ", re.DOTALL)
                                 # dos_match_from_form = re.findall('[^\w](\d+\.?\d*\s?mg\/?\d*\.?\d*\s?mg\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?mg\/?\d*\.?\d*\s?sprays|\d+\.?\d*\s?mcg\/?\d*\.?\d*\s?mg\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?mcg\/?\d*\.?\d*\s?mcg\/?\d*\.?\d*\s?actuation|\d+\.?\d*\s?mcg\/?\d*\.?\d*\s?mcg|\d+\.?\d*\s?mcg\/?\d*\.?\d*\s?mg|\d+\.?\d*\s?u\/?\d*\.?\d*\s?g|\d+\.?\d*\s?mL\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?mg\/?\d*\.?\d*\s?IU|\d+\.?\d*\s?g\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?IU\/?\d*\.?\d*\s?ml|\d+\.?\d*\s?IU\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?g\/?\d*\.?\d*\s?g|\d+\.?\d*\s?mcg\/?\d*\.?\d*\s?dose|\d+\.?\d*\s?mcg\/?\d*\.?\d*\s?hour|\d+\.?\d*\s?mg\/?\d*\.?\d*\s?g|\d+\.?\d*\s?mcg\/?\d*\.?\d*\s?g|\d+\.?\d*\s?units\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?mg\/?\d*\.?\d*\s?g|\d+\.?\d*\s?mg\/?\d*\.?\d*\s?ml|\d+\.?\d*\s?mg\/?\d*\.?\d*\s?mL|\d+\.?\d*\s?mg(?:\/\d+\.?\d*\s?mg)*|\d+\.?\d*\s*MIU|\d+\.?\d*\s?MU\/?\d*\.?\d*\s?mL|\d+.?\d*\/?\d*.?\d*\/?\d*.?\d*\s*mg(?:\/?(?:\d*.?\d*\s*mL)?)?|\d+.?\d*\s*g(?:\/?(?:\d*.?\d*\s*mL)?)?(?:\/?(?:\d*.?\d*\s*L)?)?|\d+\.?\d*?MIU|\d+\s*IU(?:\/?(?:\d*.?\d*\s*mL)?)?|\d+\.?\d*\s?U\/?mL|\d+.?\d*\/?\d*\s*mcg(?:\/?(?:\d*.?\d*\s*mL)?)?|\d+\.?\d*\s?mL|\d+\.?\d*\s?U|\d+\.?\d*\s?u|\d+\.?\d*\/?\-?\d*\.?\d*\/?\-?\d*\.?\d*\s?mcg|\d+\.?\d+/\d+\.?\d+|\d+\.?\d*/?\d+\.?\d*|\d+\.?\d*)[^\w]'," "+form_without_drug_name+" ", re.DOTALL)#includes number also
                                 print("dosage match from form:",dos_match_from_form,form_without_drug_name)
                             if(len(dos_match_from_form)!=0 and len(con_match_from_form)!=0):
@@ -1119,6 +1127,9 @@ def read_text_file(file):
                             form = form.replace('w/w','')
                             form = form.replace('w/v','')
                             form = form.replace("( )",'')
+                            form = form.replace("()",'')
+                            form = form.replace("( / )",'')
+                            form = form.replace('v/v','')
                             form = form.strip()
                             print("form:",form)
                             format_org = form
