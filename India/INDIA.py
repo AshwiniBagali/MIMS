@@ -5,7 +5,7 @@ import pandas as pd
 import re
 from elasticsearch import Elasticsearch, helpers
 import copy  
-
+map1 = {}
 keywords_list = ['of', 'is', 'a', 'the', 'per', 'tab', 'syr', 'cap', 'fc', 'caplet', 'oral', 'susp', 'oral', 'inj', 'injection', 'soln', 'solution', 'dose', 'sugar-coated', 'forte', 'dry', 'paed', 'for', 'fC', 'drops', 'powd', 'liqd', 'mouthwash', 'rectal', 'oint', 'cream', 'daily', 'facial', 'moisturizer', 'gel', 'inhaler', 'vaccine', 'infant', 'softgel', 'eye', 'ointment', 'effervescent', 'chewtab', 'active', 'captab', 'dispersible', 'xr-fc', 'plus', 'chewable', 'dose:', 'extra', 'adult', 'mite', 'film-coated', 'softcap', 'soft', 'sachet', 'syrup', 'drag', 'bottle', 'mouthspray', 'toothpaste', 'shampoo', 'diskus', 'serum', 'lotion', 'spray']
 def get_forms(products):
     forms_list=[]
@@ -442,9 +442,106 @@ def extract_dos_con_format_from_mat(d,con,mat,std_mat,dosage_match,con_match,dos
         current_std_mat=std_mat
     print("std material : ",current_std_mat)
     return d,con,current_mat,current_std_mat,format_org,std_format
+def get_uom_details(std_amount,std_uom):
+    unit_price = ''   
+    quantity = 1
+    uom_dosage = ''
+    sub_split = []
+    if 'x' in std_uom : 
+        split =  std_uom.split('x');        
+        if len(split) == 1 : 
+            if "one" in map1.keys():
+                map1["one"] = map1["one"] + 1
+            else :
+                map1["one"] = 1
+        elif len(split) == 2 :
+            if "two" in map1.keys():
+                map1["two"] = map1["two"] + 1
+            else :
+                 map1["two"] = 1
+        elif len(split) == 3:
+            if "three" in map1.keys():
+                map1["three"] = map1["three"] + 1
+            else :
+                map1["three"] = 1
+        elif len(split) == 4:
+            if "four" in map1.keys():
+                map1["four"] = map1["four"] + 1
+            else :
+                map1["four"] = 1
+        else:
+            # print (f"new combination of UOM found ignoring now: index : {index}  {uom} \n")
+            if "new_combination" in map1.keys():
+                map1["new_combination"] += 1
+            else :
+                map1["new_combination"] = 1
+
+
+        first_element = split[0]
+        is_only_digits = 1;
+        for elem in split:
+            if re.search( r'^\d+(\.\d+)?$', elem): 
+                elem = int(elem)
+                # if not isinstance(elem, str):
+                    # print(elem)
+                if elem and elem > 0 :
+                    quantity *= elem
+                    print("quantity:",quantity)
+            else:
+                is_only_digits = 0;
+                if uom_dosage == "":
+                    uom_dosage += elem
+                else: 
+                    uom_dosage += 'x' + elem
+        
+        if is_only_digits:
+            uom_dosage = first_element
+        if std_amount and std_amount > 0 :
+            unit_price = round(std_amount / quantity,2)
+    else:
+        if std_uom == "":
+            if "empty" in map1.keys():
+                map1["empty"] += 1
+            else :
+                map1["empty"] = 1
+        elif re.search( r'^\d+$',std_uom) :
+            if "one" in map1.keys():
+                map1["one"] += 1
+            else :
+                map1["one"] = 1
+        else: 
+            sub_split = re.findall(r'(\d+)([a-z]+)', std_uom)
+            if len(sub_split) > 0 :
+                unit = sub_split[0][1]
+                if "unit" in map1.keys():
+                    if unit in map1["unit"].keys():                    
+                        map1["unit"][unit] += 1
+                    else:
+                        map1["unit"][unit] = 1
+                else :
+                    map1["unit"] = {}
+                    map1["unit"][unit] = 1
+
+            else:
+                # print (f"unknown format of UOM found ignoring now:{index} {uom}");
+                if "unknown" in map1.keys():
+                    map1["unknown"] += 1
+                else :
+                    map1["unknown"] = 1
+                std_uom = "";
+         
+        uom_dosage = std_uom
+        if re.search( r'^\d+(\.\d+)?$', std_uom): 
+            quantity = float(std_uom)
+            if std_amount and std_amount > 0 :
+                unit_price = round(std_amount / quantity,2)
+        else:
+            quantity = 1
+            unit_price = std_amount
+    return uom_dosage,quantity,unit_price,std_uom
 with open('India.csv','w') as file:
     writer = csv.writer(file)
-    writer.writerow(["brand","manufacturer","cims_class","material","standard_material","format_original","standard_format","concentration","dosage","uom","atc_code","atc_detail","amount","mims_class"])
+    writer.writerow(["brand","manufacturer","cims_class","material","standard_material","format_original","standard_format","concentration","dosage","uom","uom_dosage","uom_quantity","unit_price","total_amount","atc_code","atc_detail","mdc_code","sub_format","locale","mims_class"])
 def read_text_file(file):  
     with open(file) as f:
         data= [json.loads(line) for line in f]    
@@ -465,6 +562,9 @@ def read_text_file(file):
         std_material=[]
         mimsClass=[]
         amount=[]
+        uom_dosage_list=[]
+        uom_quantity_list=[]
+        unit_price_list=[]
         for item in data:
             d=''
             con=''
@@ -472,10 +572,6 @@ def read_text_file(file):
             con_match=''
             dosage_match_in_mat=''
             con_match_in_mat=''
-            dos_match_from_form=''
-            con_match_from_form=''
-            dos_match_from_packaging=''
-            con_match_from_packaging=''
             format_match=''
             format_org=''
             std_format=''
@@ -485,9 +581,6 @@ def read_text_file(file):
             org_form=''
             std_uom=''
             std_amount=''
-            drug_name=[]
-            activeIngredientsList=[]
-            dos_match_from_form=''
             products= item['details']['products']
             activeIngredients=item['details']['activeIngredients']
             drugName=item['drugName']
@@ -535,6 +628,9 @@ def read_text_file(file):
                                     atcCode.append(atc_code)
                                     atcDetail.append(atc)
                                     uom.append('')
+                                    uom_dosage_list.append('')
+                                    uom_quantity_list.append(1)
+                                    unit_price_list.append('')
                                     amount.append('')
                                     d = ''
                                     con = ''
@@ -557,8 +653,9 @@ def read_text_file(file):
                                     std_material.append(current_std_mat)
                     elif(len(material_list)==0):
                             if(drugClassification=='Generic'):
-                                    current_mat = drug
-                                    current_std_mat = drug
+                                    current_mat = drugName
+                                    current_std_mat = drugName
+                                    drugName = ''
                             concentration.append('')
                             dosage.append('')
                             material.append(current_mat)
@@ -572,6 +669,9 @@ def read_text_file(file):
                             format_original.append('')
                             formater.append('')
                             uom.append('')
+                            uom_dosage_list.append('')
+                            uom_quantity_list.append(1)
+                            unit_price_list.append('')
                             amount.append('')
                             d=''
                             con=''
@@ -591,16 +691,6 @@ def read_text_file(file):
                             i=i.replace(',','')
                             i=i.replace(';','')
                             form = org_form
-#                             if(drugName.find('/')!=-1):
-#                                 drug_name=drugName.split('/')
-#                                 drug_match_in_form=''
-#                                 for d in drug_name:
-#                                         if(org_form.find(d)!=-1):
-#                                             drug_match_in_form=form[:len(d)]
-# #                                             current_drug=d
-#                                 form=form.replace(drug_match_in_form,'')
-#                             else:
-#                                 # current_drug=drugName
                             pattern = re.compile(re.escape(drugName), re.IGNORECASE)
                             form = pattern.sub('', form)
                             form = form.strip()
@@ -614,6 +704,7 @@ def read_text_file(file):
                                 l_index = i.find('INR')
                                 amt = i[index+1:l_index-1]
                                 std_amount = amt.replace(',','')
+                                std_amount = float(std_amount)
                                 if(s!=-1):
                                     per = i.find('%')
                                     x_second_occ = x_first_occ.find('x')  
@@ -656,6 +747,10 @@ def read_text_file(file):
                                     d = ''
                                     con = ''
                                 std_amount = ''
+                            std_uom = std_uom.replace("'s","")
+                            std_uom = std_uom.replace(' ','')
+                            uom_dosage,quantity,unit_price,std_uom = get_uom_details(std_amount,std_uom)
+                            # std_amount = str(std_amount)
                             if(len(material_list)!=0):
                                     if(len(material_list) > 1):
                                         for e,entry in enumerate(material_list):
@@ -671,6 +766,9 @@ def read_text_file(file):
                                                 std_uom=std_uom.replace("'s",'')
                                                 std_uom=std_uom.strip()
                                                 uom.append(std_uom)
+                                                uom_dosage_list.append(uom_dosage)
+                                                uom_quantity_list.append(quantity)
+                                                unit_price_list.append(unit_price)
                                                 amount.append(std_amount)
                                                 mat = material_list[e]
                                                 std_mat = material_list[e]
@@ -700,6 +798,9 @@ def read_text_file(file):
                                         std_uom=std_uom.replace("'s",'')
                                         std_uom=std_uom.strip()
                                         uom.append(std_uom)
+                                        uom_dosage_list.append(uom_dosage)
+                                        uom_quantity_list.append(quantity)
+                                        unit_price_list.append(unit_price)
                                         amount.append(std_amount)
                                         mat=entry
                                         std_mat=entry
@@ -718,8 +819,9 @@ def read_text_file(file):
                                         std_material.append(current_std_mat)
                             elif(len(material_list)==0):
                                     if(drugClassification=='Generic'):
-                                        current_mat = drug
-                                        current_std_mat = drug
+                                        current_mat = drugName
+                                        current_std_mat = drugName
+                                        drugName = ''
                                     material.append(current_mat)
                                     d=d.replace(',','')
                                     d=d.replace(' ','')
@@ -737,13 +839,16 @@ def read_text_file(file):
                                     std_uom=std_uom.replace("'s",'')
                                     std_uom=std_uom.strip()
                                     uom.append(std_uom)
+                                    uom_dosage_list.append(uom_dosage)
+                                    uom_quantity_list.append(quantity)
+                                    unit_price_list.append(unit_price)
                                     amount.append(std_amount)
                                     format_original.append(format_org)
                                     formater.append(std_format)
     file = open('India.csv', 'a', newline ='')
     with file:
         write = csv.writer(file)
-        write.writerows(zip(brand,manufacturer,cimsClass,material,std_material,format_original,formater,concentration,dosage,uom,atcCode,atcDetail,amount,mimsClass))      
+        write.writerows(zip(brand,manufacturer,cimsClass,material,std_material,format_original,formater,concentration,dosage,uom,uom_dosage_list,uom_quantity_list,unit_price_list,amount,atcCode,atcDetail,[""]* len(brand),[""]* len(brand),["en_IN"]* len(brand),mimsClass))      
 def search(form):
         es = Elasticsearch("http://admin:admin@localhost:9200/", ca_certs=False, verify_certs=False)
         query = {
@@ -762,5 +867,5 @@ def search(form):
             standard_format = doc['_source']['format']
             return standard_format
 for file in os.listdir():
-    if file.endswith(".jsonl"):
+    if file.startswith("mims_"):
         read_text_file(file)                            
