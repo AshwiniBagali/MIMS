@@ -885,6 +885,7 @@ def read_text_file(file):
                                         material.append(current_mat)
                                         std_material.append(current_std_mat)
                     elif(len(material_list)==0):
+                            print("hi")
                             concentration.append('')
                             dosage.append('')
                             if(drugClassification=='Generic'):
@@ -901,6 +902,7 @@ def read_text_file(file):
                             uom_dosage_list.append('')
                             uom_quantity_list.append(1)
                             unit_price_list.append('')
+                            amount.append('')
                             if(len(atc_code_list)!=0):
                                 atc_code = atc_code_list[0]
                                 atcCode.append(atc_code)
