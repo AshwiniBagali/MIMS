@@ -15,7 +15,7 @@ def remove_substring_in_brackets(packaging):
         packaging = re.sub(pattern, '', packaging)
 
     return packaging
-keywords_list = ['of', 'is', 'a', 'the', 'per', 'tab', 'syr', 'cap', 'fc', 'caplet', 'oral', 'susp', 'oral', 'inj', 'injection', 'soln', 'solution', 'dose', 'sugar-coated', 'forte', 'dry', 'paed', 'for', 'fC', 'drops', 'powd', 'liqd', 'mouthwash', 'rectal', 'oint', 'cream', 'daily', 'facial', 'moisturizer', 'gel', 'inhaler', 'vaccine', 'infant', 'softgel', 'eye', 'ointment', 'effervescent', 'chewtab', 'active', 'captab', 'dispersible', 'xr-fc', 'plus', 'chewable', 'dose:', 'extra', 'adult', 'mite', 'film-coated', 'softcap', 'soft', 'sachet', 'syrup', 'drag', 'bottle', 'mouthspray', 'toothpaste', 'shampoo', 'diskus', 'serum', 'lotion', 'spray']
+keywords_list = ['of', 'is', 'a', 'the', 'per', 'tab', 'syr', 'cap', 'fc', 'caplet', 'oral', 'susp', 'oral', 'inj', 'injection', 'soln', 'solution', 'sugar-coated', 'forte', 'dry', 'paed', 'for', 'fC', 'drops', 'powd', 'liqd', 'mouthwash', 'rectal', 'oint', 'cream', 'daily', 'facial', 'moisturizer', 'gel', 'inhaler', 'vaccine', 'infant', 'softgel', 'eye', 'ointment', 'effervescent', 'chewtab', 'active', 'captab', 'dispersible', 'xr-fc', 'plus', 'chewable','extra', 'adult', 'mite', 'film-coated', 'softcap', 'soft', 'sachet', 'syrup', 'drag', 'bottle', 'mouthspray', 'toothpaste', 'shampoo', 'diskus', 'serum', 'lotion', 'spray']
 def get_forms(products):
     forms_list=[]
     products = sorted(products, key=lambda x: len(x['form']), reverse=True)#Get products in descending order
@@ -104,7 +104,7 @@ def get_sub_string_from_mat(activeIngredientsList,local_keywords_list): #Get sta
             entry=entry.strip()
             entry=entry.strip('.')
             raw_mat = ''
-            dosage_match_in_mat = re.search('[^\w](\d+\.?\d*\s?mg\/?\-?\d*\.?\d*\s?mL|\d+\.?\d*\/?\-?\d*\.?\d*\s?mcg\/?dose|\d+\.?\d*\/?\-?\d*\.?\d*\s?mcg\/?actuation|\d+\.?\d*\/?\d*\.?\d*\s?u\/?mL\s?\+?\s?\d*\.?\d*\s?mcg\/?mL|\d+\.?\d*\/?\d*\.?\d*\s?mg\/?mL|\d+\.?\d*\s?u\/?\-?\d*\.?\d*\s?u|\d+\.?\d*\/?\-?\d*\.?\d*\s?u|\d+\.?\d*\s?g\/?\-?\d*\.?\d*\s?g|\d+\.?\d*\/?\-?\d*\.?\d*\s?g|\d+\.?\d*\s?mcg\/?\-?\d*\.?\d*\s?mcg|\d+\.?\d*\/?\-?\d*\.?\d*\s?mcg|\d+\.?\d*\s?IU\/?\-?\d*\.?\d*\s?IU|\d+\.?\d*\s?IU\/?mL|\d+\.?\d*\/?\-?\d*\.?\d*\s?IU|\d+\.?\d*\s?mL\/?\-?\d*\.?\d*\s?mL|\d+\.?\d*\/?\-?\d*\.?\d*\s?mL|\d+\.?\d*\/?\-?\d*\.?\d*\s?ml|\d+\.?\d*\s?mg(?:\/\d+\.?\d*\s?mg)*|\d+\.?\d*\/?\-?\d*\.?\d*/?\-?\d*\.?\d*\s?mg|\d+\.?\d*\s?iu\/?\-?\d*\.?\d*\s?iu|\d+\.?\d*\/?\-?\d*\.?\d*\s?iu|\d+\.?\d*\s?KIU\/?\-?\d*\.?\d*\s?KIU|\d+\.?\d*\/?\-?\d*\.?\d*\s?KIU|\d+\.?\d*\s?U\/?\-?\d*\.?\d*\s?U|\d+\.?\d*\/?\-?\d*\.?\d*\s?U|\sg\s|\smL\s|\sL\s|\samp\s|\sdose\s|\skCal\s|\sbar\s)[^\w]'," "+entry+" ", re.DOTALL)
+            dosage_match_in_mat = re.search('[^\w](\d+\.?\d*\s?mg\/?\-?\d*\.?\d*\s?mL|\d+\.?\d*\/?\-?\d*\.?\d*\s?mcg\/?dose|\d+\.?\d*\/?\-?\d*\.?\d*\s?mcg\/?actuation|\d+\.?\d*\/?\d*\.?\d*\s?u\/?mL\s?\+?\s?\d*\.?\d*\s?mcg\/?mL|\d+\.?\d*\/?\d*\.?\d*\s?mg\/?mL|\d+\.?\d*\s?u\/?\-?\d*\.?\d*\s?u|\d+\.?\d*\/?\-?\d*\.?\d*\s?u|\d+\.?\d*\s?g\/?\-?\d*\.?\d*\s?g|\d+\.?\d*\/?\-?\d*\.?\d*\s?g|\d+\.?\d*\s?mcg\/?\-?\d*\.?\d*\s?mcg|\d+\.?\d*\/?\-?\d*\.?\d*\s?mcg|\d+\.?\d*\s?IU\/?\-?\d*\.?\d*\s?IU|\d+\.?\d*\s?IU\/?mL|\d+\.?\d*\/?\-?\d*\.?\d*\s?IU|\d+\.?\d*\s?mL\/?\-?\d*\.?\d*\s?mL|\d+\.?\d*\/?\-?\d*\.?\d*\s?mL|\d+\.?\d*\/?\-?\d*\.?\d*\s?ml|\d+\.?\d*\s?mg(?:\/\d+\.?\d*\s?mg)*|\d+\.?\d*\/?\-?\d*\.?\d*/?\-?\d*\.?\d*\s?mg|\d+\.?\d*\s?iu\/?\-?\d*\.?\d*\s?iu|\d+\.?\d*\/?\-?\d*\.?\d*\s?iu|\d+\.?\d*\s?KIU\/?\-?\d*\.?\d*\s?KIU|\d+\.?\d*\/?\-?\d*\.?\d*\s?KIU|\d+\.?\d*\s?U\/?\-?\d*\.?\d*\s?U|\d+\.?\d*\/?\-?\d*\.?\d*\s?U|\sg\s|\smL\s|\sL\s|\samp\s|\skCal\s|\sbar\s)[^\w]'," "+entry+" ", re.DOTALL)
             con_match_in_mat = re.search('\d+\.?\d*\s?%',entry)# add first conc match or dosage match to keywords
             if(dosage_match_in_mat):
                     dosage_matches = dosage_match_in_mat.group(0).split()
@@ -223,13 +223,13 @@ def map_drug_name_to_mat_and_form(list_of_dicts,drug_name):#map drugName to mate
     # if(len(drug_name)!=0):
     #     list_of_dicts[not_found_index]['drugName']=drug_name[0]
     rows =[]
-    for j,f in enumerate(drug_name):
+    for j,a in enumerate(list_of_dicts):
         row = {
                 "index": j,
                 "values":[]
             }
         # current_entry=list_of_dicts[j]
-        for k,a in enumerate(list_of_dicts):
+        for k,f in enumerate(drug_name):
 #             a=a.lower()
             count=0
             words_in_form=a["form"].split()
@@ -395,16 +395,24 @@ def get_dosage_from_packaging(dos_match_from_packaging,con_match_from_packaging,
             con = con_match_from_packaging
             d = ''
     return d,con
+def extract_dos_con_from_drug(dos_match_from_drug,con_match_from_drug,dos,c,drug):
+    dos_match_from_drug = re.findall('\d+\.?\d*\s?mg|\d+\.?\d*\s?MG',drug, re.DOTALL)
+    con_match_from_drug = re.findall('\d+\.?\d*\s?%',drug, re.DOTALL)
+    if(len(dos_match_from_drug)!=0):
+        dos = dos_match_from_drug[0]
+    if(len(con_match_from_drug)!=0):
+        c = con_match_from_drug[0]
+    return dos,c
 def extract_dos_con_format_from_mat(d,con,mat,std_mat,dosage_match,con_match,dosage_match_in_mat,con_match_in_mat,material_to_map,format_org,std_format,format_match):
     std_mat=std_mat.strip()
     mat=mat.strip()
     if(len(d)==0 and len(con)==0 ):
         temp_mat = mat
-        remove_duplicate_dosage = re.findall('\d+\.?\d*\s?mg\/?\-?\d*\.?\d*\s?mg|\d+\.?\d*\s?mcg\/?\-?\d*\.?\d*\s?mcg|\d+\.?\d*\/?\-?\d*\.?\d*\s?mg|\d+\.?\d*\/?\-?\d*\.?\d*\s?mcg',temp_mat,re.DOTALL)
+        remove_duplicate_dosage = re.findall('\d+\.?\d*\s?mg\/\-?\d*\.?\d*\s?mg|\d+\.?\d*\s?mcg\/\-?\d*\.?\d*\s?mcg|\d+\.?\d*\/\-?\d*\.?\d*\s?mg|\d+\.?\d*\/\-?\d*\.?\d*\s?mcg',temp_mat,re.DOTALL)
         if(len(remove_duplicate_dosage)!=0):
             temp_mat = temp_mat.replace(remove_duplicate_dosage[0],'')
         # dosage_match = re.findall('\d+\.?\d*\s?u\/?\-?\d*\.?\d*\s?u|\d+\.?\d*\/?\-?\d*\.?\d*\s?u|\d+\.?\d*\s?g\/?\-?\d*\.?\d*\s?g|\d+\.?\d*\/?\-?\d*\.?\d*\s?g|\d+\.?\d*\s?mcg\/?\-?\d*\.?\d*\s?mcg|\d+\.?\d*\/?\-?\d*\.?\d*\s?mcg|\d+\.?\d*\s?IU\/?\-?\d*\.?\d*\s?IU|\d+\.?\d*\s?IU\/?mL|\d+\.?\d*\/?\-?\d*\.?\d*\s?IU|\d+\.?\d*\s?mL\/?\-?\d*\.?\d*\s?mL|\d+\.?\d*\/?\-?\d*\.?\d*\s?mL|\d+\.?\d*\/?\-?\d*\.?\d*\s?ml|\d+\.?\d*\s?mg\/?\-?\d*\.?\d*\s?mg|\d+\.?\d*\/?\-?\d*\.?\d*\s?mg|\d+\.?\d*\s?iu\/?\-?\d*\.?\d*\s?iu|\d+\.?\d*\/?\-?\d*\.?\d*\s?iu|\d+\.?\d*\s?KIU\/?\-?\d*\.?\d*\s?KIU|\d+\.?\d*\/?\-?\d*\.?\d*\s?KIU|\d+\.?\d*\s?U\/?\-?\d*\.?\d*\s?U|\d+\.?\d*\/?\-?\d*\.?\d*\s?U|\d*\.?\d*\s?mL',mat, re.DOTALL)# Regex extracting 2 gummies as 2g
-        dosage_match = re.findall('[^\w](\d+\.?\d*\s?u\/?\-?\d*\.?\d*\s?u|\d+\.?\d*\/?\-?\d*\.?\d*\s?u|\d+\.?\d*\s?g\/?\-?\d*\.?\d*\s?g|\d+\.?\d*\/?\-?\d*\.?\d*\s?g|\d+\.?\d*\s?mcg\/?\-?\d*\.?\d*\s?mcg|\d+\.?\d*\s?IU\/?\-?\d*\.?\d*\s?IU|\d+\.?\d*\s?IU\/?mL|\d+\.?\d*\/?\-?\d*\.?\d*\s?IU|\d+\.?\d*\s?mL\/?\-?\d*\.?\d*\s?mL|\d+\.?\d*\/?\-?\d*\.?\d*\s?mL|\d+\.?\d*\/?\-?\d*\.?\d*\s?ml|\d+\.?\d*\s?mg\/?\-?\d*\.?\d*\s?mg|\d+\.?\d*\s?iu\/?\-?\d*\.?\d*\s?iu|\d+\.?\d*\/?\-?\d*\.?\d*\s?iu|\d+\.?\d*\s?KIU\/?\-?\d*\.?\d*\s?KIU|\d+\.?\d*\/?\-?\d*\.?\d*\s?KIU|\d+\.?\d*\s?U\/?\-?\d*\.?\d*\s?U|\d+\.?\d*\/?\-?\d*\.?\d*\s?U|\d+\.?\d*\s?mg|\d*\.?\d*\s?mL|\d+\.?\d*\s?mcg)[^\w]'," "+temp_mat+" ", re.DOTALL)
+        dosage_match = re.findall('[^\w](\d+\.?\d*\s?mg\/?\-?\d*\.?\d*\s?mL|\d+\.?\d*\s?u\/?\-?\d*\.?\d*\s?u|\d+\.?\d*\/?\-?\d*\.?\d*\s?u|\d+\.?\d*\s?g\/?\-?\d*\.?\d*\s?g|\d+\.?\d*\/?\-?\d*\.?\d*\s?g|\d+\.?\d*\s?mcg\/?\-?\d*\.?\d*\s?mcg|\d+\.?\d*\s?IU\/?\-?\d*\.?\d*\s?IU|\d+\.?\d*\s?IU\/?mL|\d+\.?\d*\/?\-?\d*\.?\d*\s?IU|\d+\.?\d*\s?mL\/?\-?\d*\.?\d*\s?mL|\d+\.?\d*\/?\-?\d*\.?\d*\s?mL|\d+\.?\d*\/?\-?\d*\.?\d*\s?ml|\d+\.?\d*\s?mg\/?\-?\d*\.?\d*\s?mg|\d+\.?\d*\s?iu\/?\-?\d*\.?\d*\s?iu|\d+\.?\d*\/?\-?\d*\.?\d*\s?iu|\d+\.?\d*\s?KIU\/?\-?\d*\.?\d*\s?KIU|\d+\.?\d*\/?\-?\d*\.?\d*\s?KIU|\d+\.?\d*\s?U\/?\-?\d*\.?\d*\s?U|\d+\.?\d*\/?\-?\d*\.?\d*\s?U|\d+\.?\d*\s?mg|\d*\.?\d*\s?mL|\d+\.?\d*\s?mcg)[^\w]'," "+temp_mat+" ", re.DOTALL)
         con_match = re.findall('\d+\.?\d*\s?%',temp_mat, re.DOTALL)
         regex_to_match_mL=re.findall('\d*\.?\d*\s?mL',temp_mat, re.DOTALL)
         if(len(dosage_match)!=0 and len(con_match)!=0):
@@ -420,6 +428,8 @@ def extract_dos_con_format_from_mat(d,con,mat,std_mat,dosage_match,con_match,dos
                     result=result.replace(' ','')
                 else:
                     result+=m
+                    result+="/"
+            result=result.replace("//","/")
             result=result.replace(' ','')
             result=result.strip('/')
             result=result.strip('.')
@@ -442,6 +452,8 @@ def extract_dos_con_format_from_mat(d,con,mat,std_mat,dosage_match,con_match,dos
                     result=result.replace(' ','')
                 else:
                     result+=m
+                    result+="/"
+            result=result.replace("//","/")
             result=result.replace(' ','')
             result=result.strip('/')
             result=result.strip('.')
@@ -460,7 +472,7 @@ def extract_dos_con_format_from_mat(d,con,mat,std_mat,dosage_match,con_match,dos
     if(len(d)==0 and len(con)==0):
         d=''
         con=''
-    format_match = re.findall('\sexpectorant\s|\sCream & Intensive Cream\s|\sUltrafresh Stretch Mark\s|\sUltrafresh Shower Gel\s|\sIntifresh Hygiene Mist\s|Protect Hand Cream\s|Protect Hand Cream\s|\sunit dose vial\s|\spolyamp inj\s|\ssoluble insulin\s|\spowd for oral susp\s|\spowd for oral soln|\ssoftgel\s|\ssoln for inj\s|\sXR-FC tab\s|\smilk powd\s|\smoisturizing facial cleansing foam\s|\sintensive moisturizing cream\s|\srestorative hydration cream\s|\smoisturising bath & shampoo\s|\slight moisturising cream\s|\sdermarelief rescue cream\s|\smoisturizing body lotion\s|\smoisturising bath & wash\s|\sMoisturising Wash & Shampoo\s|\s Wash & Shampoo\s|\sdaily facial moisturizer\s|\sgentle foaming cleanser\s|\smoisturising day cream\s|\srevitalising eye cream\s|\snourishing conditioner\s|\sultra hydrating lotion\s|\smoisturising body wash\s|\ssensitive light lotion\s|\snurturing night cream\s|\smoisturising cleanser\s|\sintensive moisturizer\s|\sintensive oint-cream\s|\soil free moisturiser\s|\sdermarelief cleanser\s|\srichenic urea cream\s|\shydrating body wash\s|\smoisturising lotion\s|\sdose: powd for inj\s|\spowd for inj\s|moisturising cream\s|\snourishing shampoo\s|\sdermarelief lotion\s|\smulti-action cream\s|\sprofessional serum\s|\smoisturising wash\s|\sintensive lotion\s|\sfoaming cleanser\s|\sbody moisturiser\s|\smedicated lotion\s|\sdaily face cream\s|\sdaily oral rinse\s|\sintensive cream\s|\ssoothing lotion\s|\sgentle cleanser\s|\ssting-free oint\s|\sfilm-coated tab\s|\ssoothing cream\s|\sgentle shampoo\s|\sdaily moisture\s|\scleansing gel\s|\scod liver oil\s|\srepair cream\s|\schewable tab\s|\sfoaming wash\s|\sultra lotion\s|\sdaily lotion\s|\snappy cream\s|\sskin lotion\s|\sBody Lotion\s|\sgentle wash\s|\srectal oint\s|\smouth spray\s|\screamy wash\s|\smoisturizer\s|\shand cream\s|\srescue gel\s|\sfruit powd\s|\stoothpaste\s|\sinhalation\s|\scaring oil\s|\soral spray\s|\soral susp\s|\soral liqd\s|\smouthwash\s|\smouth gel\s|\soral soln\s|\sactuation\s|\scleanser\s|\ssunblock\s|\sbath oil\s|\sgranules\s|\sinsulin\s|\sshampoo\s|\sfc tab\s|\ssachet\s|\slotion\s|\stroche\s|\scream\s|\sdrops\s|\spowd\s|\ssusp\s|\sliqd\s|\swash\s|\ssupp\s|\soint\s|\ssoln\s|\stab\s|\scap\s|\sinj\s|\sgel\s|\ssyr\s|\sgummies\s|\sgummy\s|\sturbuhaler\s|\saccuhaler\s|\sevohaler\s|\smdv\s|\svial\s|\sSpray\s'," "+material_to_map+" ",re.IGNORECASE)
+    format_match = re.findall('\sexpectorant\s|\sCream & Intensive Cream\s|\sUltrafresh Stretch Mark\s|\sUltrafresh Shower Gel\s|\sIntifresh Hygiene Mist\s|Protect Hand Cream\s|Protect Hand Cream\s|\sunit dose vial\s|\spolyamp inj\s|\ssoluble insulin\s|\spowd for oral susp\s|\spowd for oral soln|\ssoftgel\s|\ssoln for inj\s|\sXR-FC tab\s|\smilk powd\s|\smoisturizing facial cleansing foam\s|\sintensive moisturizing cream\s|\srestorative hydration cream\s|\smoisturising bath & shampoo\s|\slight moisturising cream\s|\sdermarelief rescue cream\s|\smoisturizing body lotion\s|\smoisturising bath & wash\s|\sMoisturising Wash & Shampoo\s|\s Wash & Shampoo\s|\sdaily facial moisturizer\s|\sgentle foaming cleanser\s|\smoisturising day cream\s|\srevitalising eye cream\s|\snourishing conditioner\s|\sultra hydrating lotion\s|\smoisturising body wash\s|\ssensitive light lotion\s|\snurturing night cream\s|\smoisturising cleanser\s|\sintensive moisturizer\s|\sintensive oint-cream\s|\soil free moisturiser\s|\sdermarelief cleanser\s|\srichenic urea cream\s|\shydrating body wash\s|\smoisturising lotion\s|\spowd for inj\s|moisturising cream\s|\snourishing shampoo\s|\sdermarelief lotion\s|\smulti-action cream\s|\sprofessional serum\s|\smoisturising wash\s|\sintensive lotion\s|\sfoaming cleanser\s|\sbody moisturiser\s|\smedicated lotion\s|\sdaily face cream\s|\sdaily oral rinse\s|\sintensive cream\s|\ssoothing lotion\s|\sgentle cleanser\s|\ssting-free oint\s|\sfilm-coated tab\s|\ssoothing cream\s|\sgentle shampoo\s|\sdaily moisture\s|\scleansing gel\s|\scod liver oil\s|\srepair cream\s|\schewable tab\s|\sfoaming wash\s|\sultra lotion\s|\sdaily lotion\s|\snappy cream\s|\sskin lotion\s|\sBody Lotion\s|\sgentle wash\s|\srectal oint\s|\smouth spray\s|\screamy wash\s|\smoisturizer\s|\shand cream\s|\srescue gel\s|\sfruit powd\s|\stoothpaste\s|\sinhalation\s|\scaring oil\s|\soral spray\s|\soral susp\s|\soral liqd\s|\smouthwash\s|\smouth gel\s|\soral soln\s|\sactuation\s|\scleanser\s|\ssunblock\s|\sbath oil\s|\sgranules\s|\sinsulin\s|\sshampoo\s|\sfc tab\s|\ssachet\s|\slotion\s|\stroche\s|\scream\s|\sdrops\s|\spowd\s|\ssusp\s|\sliqd\s|\swash\s|\ssupp\s|\soint\s|\ssoln\s|\stab\s|\scap\s|\sinj\s|\sgel\s|\ssyr\s|\sgummies\s|\sgummy\s|\sturbuhaler\s|\saccuhaler\s|\sevohaler\s|\smdv\s|\svial\s|\sSpray\s|\soil\s'," "+material_to_map+" ",re.IGNORECASE)
     if(len(format_match)!=0 and len(format_org)==0):
         format_org=format_match[0].strip()
         std_format=search(format_org)
@@ -557,14 +569,15 @@ def add_manual(csv_headers,drug,manf,cims_class,mims_class,atc_code_list,atc_lis
         mat = entry
         dos = ""
         c = ""
-        dos,c,current_mat,current_std_mat,format_org,std_format = extract_dos_con_format_from_mat(d,con,mat,std_mat,dosage_match,con_match,dosage_match_in_mat,con_match_in_mat,mat_to_map_list[e],format_org,std_format,format_match)
+        current_format = ""
+        dos,c,current_mat,current_std_mat,current_format,std_format = extract_dos_con_format_from_mat(d,con,mat,std_mat,dosage_match,con_match,dosage_match_in_mat,con_match_in_mat,mat_to_map_list[e],format_org,std_format,format_match)
         dos = dos.replace(' ','')
         dos = dos.replace(',','')
         c = c.replace(' ','')
         c = c.replace(',','')
         csv_headers.dosage.append(dos)
         csv_headers.concentration.append(c)
-        csv_headers.format_original.append(format_org)
+        csv_headers.format_original.append(current_format)
         csv_headers.formater.append(std_format)
         csv_headers.material.append(current_mat)
         csv_headers.std_material.append(current_std_mat)
@@ -622,7 +635,6 @@ def get_uom_details(std_amount,std_uom):
                     # print(elem)
                 if elem and elem > 0 :
                     quantity *= elem
-                    print("quantity:",quantity)
             else:
                 is_only_digits = 0;
                 if uom_dosage == "":
@@ -739,6 +751,8 @@ def read_text_file(file):
             con_match_from_form=''
             dos_match_from_packaging=''
             con_match_from_packaging=''
+            dos_match_from_drug = ''
+            con_match_from_drug = ''
             format_match=''
             format_org=''
             std_format=''
@@ -749,7 +763,7 @@ def read_text_file(file):
             std_uom=''
             std_amount=''
             drug_name=[]
-            activeIngredientsList=[]
+            format_match_from_form=[]
             is_length_to_map_equal = True
             print("--------------------------------------------------------------------------------",item['drugName'])
             products= item['details']['products']
@@ -781,6 +795,14 @@ def read_text_file(file):
                 material_list = ''
             if(len(products)==0):
                 for drug in drug_name:
+                    format_match_from_form = re.findall('[^\w](powd for oral susp \(tutti-frutti flavour sachet\)|powd for inj \[vaccine \(inj\) \(pre-filled syringe\]|powd for soln for infusion \(single-use vial\)|soln for inj/infusion \(pre-filled syringe\)|vaccine \(inj\) \(vial & pre-filled syringe\)|vaccine susp for inj \(pre-filled syringe\)|vaccine \(oral\) \(pre-filled dosing tube\)|gastro-resistant \(enteric-coated\) tab|effervescent granules \(lemon flavour\)|DermaRel Lipid-Replenishing Cleanser|powd for conc for soln for infusion|vaccine \(inj\) \(pre-filled syringe\)|Moisturizing Facial Cleansing Foam|Total Care Less Intense mouthwash|susp for inj \(pre-filled syringe\)|soln for inj \(pre-filled syringe\)|oral susp \(tutti-frutti flavour\)|vaccine \(inj\) \(single-dose vial\)|inhalation soln \(unit-dose vial\)|powd for inj \(single-dose vial\)|DermaRel Ultra Hydrating Lotion|granules for oral soln \(sachet\)|nebuliser soln \(unit-dose vial\)|concentrated soln for infusion|soln for inj \(pre-filled pen\)|powd for inj \(pre-filled pen\)|Childn granules for oral susp|Infant granules for oral susp|eye drops \(preservative-free\)|powd for inj \(Clickeasy vial\)|Hydrating cleansing bar soap|Intensive Moisturizing Cream|powd for inj/infusion \(vial\)|powd for oral soln \(sachet\)|soln for inj \(autoinjector\)|Restorative Hydration Cream|Moisturising Wash & Shampoo|Sugar-enteric-coated caplet|oral soln \(cherry flavour\)|powd for soln for infusion|conc for soln for infusion|Plus Cough Suppressant syr|Ped granules for oral soln|emulsion for inj/infusion|Intensive Hydrating Cream|pre-filled pen \(Solostar\)|oral soln \(grape flavour\)|serum topical application|powd for infusion \(vial\)|inj \(pre-filled syringe\)|FlexPen \(pre-filled pen\)|Light Moisturising Cream|soln for infusion \(vial\)|vaccine \(inj\) \(lyo vial\)|DermaRelief Rescue Cream|Single dose powd for inj|Moisturizing Body Lotion|soln for inj \(cartridge\)|Daily Facial Moisturizer|Moisturising Bath & Wash|susp for inj \(cartridge\)|Gentle Foaming Cleanser|Ultrafresh Stretch Mark|Hydrating liqd cleanser|bladder irrigation soln|powd for inj \(lyo vial\)|fast disintegrating tab|Adlt pre-filled syringe|Moisturising Day cream|Revitalising eye cream|Nourishing Conditioner|Intifresh Hygiene Mist|granules for oral soln|Sensitive Light lotion|granules for oral susp|powd for inj/infusion|soln for inj/infusion|powd for soln for inj|Nurturing Night cream|Moisturising Cleanser|Ultrafresh Shower Gel|effervescent granules|granule for oral soln|Intensive oint-cream|gastro-resistant tab|Total Care mouthwash|Oil Free Moisturiser|infusion conc \(vial\)|DermaRelief Cleanser|vaccine \(inj\) \(vial\)|minimicrospheres cap|gastro-resistant cap|modified-release tab|Plus Expectorant syr|Preparation Cleanser|micronized FC caplet|oral saline laxative|respiratory solution|Richenic urea cream|powd for inj \(vial\)|soln for inj \(vial\)|penfill \(cartridge\)|Cool Mint mouthwash|inhalation powd cap|Aqueous nasal spray|Hydrating Body Wash|DermaRel Spray & Go|topical application|susp for inj \(vial\)|orodispersible film|Forte topical spray|soln for inhalation|Active chewable tab|Chocolate oral liqd|inhalation liqd cap|liqd for inhalation|susp for inhalation|Sugar-coated caplet|Inhalation Solution|respirator solution|powd for oral susp|Polyamp Duofit inj|powd for oral soln|soln for inj \(amp\)|Protect Hand Cream|powd for oral liqd|Moisturising Cream|Nourishing Shampoo|powd for IM/IV inj|orodispersible tab|cleansing bar soap|DermaRelief Lotion|Intratracheal susp|Multivitamin gummy|Professional Serum|Multi-Action Cream|inj \(lyo\) for soln|IV/IM powd for inj|Childn nasal drops|Infant nasal drops|film-coated caplet|enteric-coated tab|pre-filled syringe|soln for infusion|powd for infusion|transdermal spray|transdermal patch|granules for susp|effervescent powd|topical soln conc|oral lyophilisate|powd for oral use|Adult nasal drops|Kids chewable tab|Vanilla oral liqd|milk powd Vanilla|infant oral drops|Plus Chewable tab|Infusion solution|Intensive lotion|Foaming cleanser|oromucosal spray|sugar-coated tab|effervescent tab|Body Moisturiser|Hydrating lotion|Medicated Lotion|Daily Face cream|Daily Oral Rinse|lyo powd for inj|Derma Rash cream|vaccine susp inj|soft gelatin cap|viscous solution|ophthalmic drops|Intensive cream|Soothing lotion|dispersible tab|film-coated tab|inhalation powd|childn granules|Gentle Cleanser|Sting-Free Oint|inhalation soln|oromucosal liqd|respirator soln|liqd-filled cap|forte oral susp|inhalation liqd|intraocular inj|IV powd for inj|Transparent gel|transdermal gel|oromucosal soln|Chewable caplet|milk powd Honey|Expectorant syr|liqd inhalation|Saline Solution|oral Suspension|powder/solution|Soothing cream|pre-filled pen|oromucosal gel|adult granules|Gentle Shampoo|Relizema cream|vaccine \(oral\)|infusion \(amp\)|nebuliser soln|Daily Moisture|vaccine \(vial\)|ear drops soln|ophth emulsion|pre-filled inj|nebulizer soln|Forte dry susp|Aerofilm gauze|sublingual tab|Micellar Water|eye & ear drop|eye suspension|infusion conc|vaccine \(inj\)|topical spray|eye/ear drops|liqd cleanser|oral granules|cleansing gel|topical cream|inj iopamidol|infusion soln|forte dry syr|dry syr Forte|eye-ear drops|oral solution|soln for inj|chewable tab|Repair cream|powd for inj|infusion bag|topical soln|topical liqd|Forte FC tab|susp for inj|topical powd|rectal cream|Foaming Wash|Ultra lotion|Daily Lotion|Forte caplet|soluble film|dental paste|facial cream|eye ointment|nail lacquer|vaccine oral|nasal spray|topical gel|ophth drops|nasal drops|softgel cap|KwikPen inj|chewing gum|Nappy Cream|Skin Lotion|Gentle Wash|Polyamp inj|rectal oint|Body Lotion|expectorant|Creamy Wash|shower pack|Moisturizer|transdermal|ophth strip|vaccine inj|IV infusion|Plus caplet|topical oil|Night Cream|Moisturiser|Conditioner|Thermometer|Liquid Soap|concentrate|intravenous|suppository|oral liquid|stain strip|oral drops|ophth soln|Childn syr|oral spray|inj \(vial\)|Skin cream|Start oint|coated tab|ophth susp|scalp soln|Hand Cream|Rescue Gel|ophth oint|Sugar-free|toothpaste|inhalation|spray powd|nasal wash|caring oil|combi pack|mouthspray|active tab|Forte drag|rectal gel|turbuhaler|Thermoscan|dental gel|irrigation|nasal drop|oral paste|suspension|wound wash|supplement|oral liqd|oral susp|oral soln|eye drops|actuation|Adult syr|inj \(amp\)|milk powd|ear drops|Ear Drop|mouthwash|Adult cap|Regen pad|FC caplet|XR-FC tab|Mouth gel|forte syr|DHA gummy|accuhaler|oral powd|cough syr|sunscreen|body wash|Forte cap|depot inj|liqd soap|forte tab|paed susp|gauze-pad|vag ovule|flash tab|liqd wash|adult tab|rapihaler|Day Cream|Injection|Plus susp|Nebuliser|sanitiser|container|infusion|cleanser|Sunblock|vag wash|infusion|oral gel|granules|liniment|Bath Oil|inj conc|evohaler|Kids syr|Gold cap|eye susp|eye oint|pastille|respules|Disp tab|hard cap|mite tab|GITS tab|band-aid|soft cap|Plus tab|dressing|solostar|orapaste|filcotab|Lip Balm|Emulsion|Eye Drop|solution|catridge|ointment|tincture|spansule|Shampoo|vag gel|vegecap|softcap|linctus|vag tab|vaccine|pessary|vegicap|topical|gummies|nebules|softgel|plaster|filmtab|implant|dry syr|minitab|eye gel|chewtab|inhaler|dry inj|emulgel|Essence|capsule|handrub|lozenge|mixture|Bandage|aerosol|pellets|FC tab|lotion|elixir|sachet|\(vial\)|ER tab|gargle|SolTab|caplet|troche|XR tab|teabag|CR tab|IV inj|EC tab|FC cap|MR tab|OD tab|bottle|DR cap|FX tab|captab|diskus|IR tab|douche|Balsam|liquid|powder|system|tablet|wafers|durule|cream|Spray|gummy|drops|Drop|enema|ovule|sheet|jelly|licap|Patch|paste|Creme|Serum|beads|paint|scrub|strip|syrup|tears|gauze|stick|powd|drag|Wash|susp|liqd|oint|supp|soap|vial|soln|oral|foam|balm|salt|swab|film|melt|pill|wipe|cap|inj|tab|gel|syr|loz|MDI|DPI|pen|oil|Kit|Jel|gum|udv|IV)[^\w]'," "+drug+" ",re.IGNORECASE)
+                    if(len(format_match_from_form)!=0):
+                        format_org = format_match_from_form[0]
+                    else:
+                        format_org = ''
+                    std_format=search(format_org)
+                    if(std_format==None):
+                        std_format=''
                     if(len(material_list)!=0):
                         local_keywords_list = append_keywords_from_form_to_keywords_list([],drug_name)
                         if(len(material_list) > 1 and len(drug_name) > 1):#map drugName to material
@@ -791,7 +813,6 @@ def read_text_file(file):
                                 list_of_dicts = map_drug_name_to_mat(drug_name,mat_to_map_list,material_list)
                                 # for i,entry in enumerate(activeIngredientsList):
                                 matched_material,material_to_map = get_matching_material('',drug,list_of_dicts)
-                            print("is length equal for mapping : ",is_length_to_map_equal)
                             if(matched_material and is_length_to_map_equal == True):
                                 brand.append(drug)        
                                 manufacturer.append(manf)
@@ -818,13 +839,13 @@ def read_text_file(file):
                                 amount.append('')
                                 d = ''
                                 con = ''
-                                format_org = ''
-                                std_format = ''
                                 std_mat = matched_material
                                 mat = matched_material
                                 dos = ""
                                 c = ""
                                 dos,c,current_mat,current_std_mat,format_org,std_format = extract_dos_con_format_from_mat(d,con,mat,std_mat,dosage_match,con_match,dosage_match_in_mat,con_match_in_mat,material_to_map,format_org,std_format,format_match)
+                                if(len(dos)==0 and len(c)==0):
+                                    dos,c = extract_dos_con_from_drug(dos_match_from_drug,con_match_from_drug,dos,c,drug)
                                 dos = dos.replace(' ','')
                                 dos = dos.replace(',','')
                                 c = c.replace(' ','')
@@ -867,27 +888,31 @@ def read_text_file(file):
                                         amount.append('')
                                         d = ''
                                         con = ''
-                                        format_org = ''
-                                        std_format = ''
                                         std_mat = entry
                                         mat = entry
                                         dos = ""
                                         c = ""
-                                        dos,c,current_mat,current_std_mat,format_org,std_format = extract_dos_con_format_from_mat(d,con,mat,std_mat,dosage_match,con_match,dosage_match_in_mat,con_match_in_mat,mat_to_map_list[e],format_org,std_format,format_match)
+                                        org_format = ""
+                                        dos,c,current_mat,current_std_mat,org_format,std_format = extract_dos_con_format_from_mat(d,con,mat,std_mat,dosage_match,con_match,dosage_match_in_mat,con_match_in_mat,mat_to_map_list[e],format_org,std_format,format_match)
+                                        if(len(dos)==0 and len(c)==0):
+                                            dos,c = extract_dos_con_from_drug(dos_match_from_drug,con_match_from_drug,dos,c,drug)
                                         dos = dos.replace(' ','')
                                         dos = dos.replace(',','')
                                         c = c.replace(' ','')
                                         c = c.replace(',','')
                                         dosage.append(dos)
                                         concentration.append(c)
-                                        format_original.append(format_org)
+                                        format_original.append(org_format)
                                         formater.append(std_format)
                                         material.append(current_mat)
                                         std_material.append(current_std_mat)
                     elif(len(material_list)==0):
-                            print("hi")
-                            concentration.append('')
-                            dosage.append('')
+                            dos = ''
+                            c = ''
+                            if(len(dos)==0 and len(c)==0):
+                                dos,c = extract_dos_con_from_drug(dos_match_from_drug,con_match_from_drug,dos,c,drug)
+                            concentration.append(c)
+                            dosage.append(dos)
                             if(drugClassification=='Generic'):
                                     #If drugClassification is generic and material_list is empty then drugName becomes activeIngredient for that drug
                                     current_mat = drug
@@ -917,13 +942,11 @@ def read_text_file(file):
                                 atcDetail.append(atc)
                             elif(len(atc_list)==0):
                                 atcDetail.append('')
-                            format_original.append('')
-                            formater.append('')
+                            format_original.append(format_org)
+                            formater.append(std_format)
                             uom.append('')
                             d=''
                             con=''
-                            format_org=''
-                            std_format=''
             elif(len(products)!=0):
                 forms_list = get_forms(products)
                 local_keywords_list = append_keywords_from_form_to_keywords_list(forms_list,drug_name)
@@ -951,7 +974,6 @@ def read_text_file(file):
                             std_uom=remove_substring_in_brackets(i)
                             std_uom=std_uom.replace("'s",'')
                             std_uom=std_uom.strip()
-                            print("amount:",std_amount)
                             if(std_amount):
                                 std_amount = float(std_amount)
                             std_uom = std_uom.replace(' ','')
@@ -962,7 +984,7 @@ def read_text_file(file):
                             for d in individual_words:
                                 pattern = re.compile(re.escape(d), re.IGNORECASE)
                                 form = pattern.sub('', form,1)
-                            print("form:",form)
+                                format_match_from_form = re.findall('[^\w](powd for oral susp \(tutti-frutti flavour sachet\)|powd for inj \[vaccine \(inj\) \(pre-filled syringe\]|powd for soln for infusion \(single-use vial\)|soln for inj/infusion \(pre-filled syringe\)|vaccine \(inj\) \(vial & pre-filled syringe\)|vaccine susp for inj \(pre-filled syringe\)|vaccine \(oral\) \(pre-filled dosing tube\)|gastro-resistant \(enteric-coated\) tab|effervescent granules \(lemon flavour\)|DermaRel Lipid-Replenishing Cleanser|powd for conc for soln for infusion|vaccine \(inj\) \(pre-filled syringe\)|Moisturizing Facial Cleansing Foam|Total Care Less Intense mouthwash|susp for inj \(pre-filled syringe\)|soln for inj \(pre-filled syringe\)|oral susp \(tutti-frutti flavour\)|vaccine \(inj\) \(single-dose vial\)|inhalation soln \(unit-dose vial\)|powd for inj \(single-dose vial\)|DermaRel Ultra Hydrating Lotion|granules for oral soln \(sachet\)|nebuliser soln \(unit-dose vial\)|concentrated soln for infusion|soln for inj \(pre-filled pen\)|powd for inj \(pre-filled pen\)|Childn granules for oral susp|Infant granules for oral susp|eye drops \(preservative-free\)|powd for inj \(Clickeasy vial\)|Hydrating cleansing bar soap|Intensive Moisturizing Cream|powd for inj/infusion \(vial\)|powd for oral soln \(sachet\)|soln for inj \(autoinjector\)|Restorative Hydration Cream|Moisturising Wash & Shampoo|Sugar-enteric-coated caplet|oral soln \(cherry flavour\)|powd for soln for infusion|conc for soln for infusion|Plus Cough Suppressant syr|Ped granules for oral soln|emulsion for inj/infusion|Intensive Hydrating Cream|pre-filled pen \(Solostar\)|oral soln \(grape flavour\)|serum topical application|powd for infusion \(vial\)|inj \(pre-filled syringe\)|FlexPen \(pre-filled pen\)|Light Moisturising Cream|soln for infusion \(vial\)|vaccine \(inj\) \(lyo vial\)|DermaRelief Rescue Cream|Single dose powd for inj|Moisturizing Body Lotion|soln for inj \(cartridge\)|Daily Facial Moisturizer|Moisturising Bath & Wash|susp for inj \(cartridge\)|Gentle Foaming Cleanser|Ultrafresh Stretch Mark|Hydrating liqd cleanser|bladder irrigation soln|powd for inj \(lyo vial\)|fast disintegrating tab|Adlt pre-filled syringe|Moisturising Day cream|Revitalising eye cream|Nourishing Conditioner|Intifresh Hygiene Mist|granules for oral soln|Sensitive Light lotion|granules for oral susp|powd for inj/infusion|soln for inj/infusion|powd for soln for inj|Nurturing Night cream|Moisturising Cleanser|Ultrafresh Shower Gel|effervescent granules|granule for oral soln|Intensive oint-cream|gastro-resistant tab|Total Care mouthwash|Oil Free Moisturiser|infusion conc \(vial\)|DermaRelief Cleanser|vaccine \(inj\) \(vial\)|minimicrospheres cap|gastro-resistant cap|modified-release tab|Plus Expectorant syr|Preparation Cleanser|micronized FC caplet|oral saline laxative|respiratory solution|Richenic urea cream|powd for inj \(vial\)|soln for inj \(vial\)|penfill \(cartridge\)|Cool Mint mouthwash|inhalation powd cap|Aqueous nasal spray|Hydrating Body Wash|DermaRel Spray & Go|topical application|susp for inj \(vial\)|orodispersible film|Forte topical spray|soln for inhalation|Active chewable tab|Chocolate oral liqd|inhalation liqd cap|liqd for inhalation|susp for inhalation|Sugar-coated caplet|Inhalation Solution|respirator solution|powd for oral susp|Polyamp Duofit inj|powd for oral soln|soln for inj \(amp\)|Protect Hand Cream|powd for oral liqd|Moisturising Cream|Nourishing Shampoo|powd for IM/IV inj|orodispersible tab|cleansing bar soap|DermaRelief Lotion|Intratracheal susp|Multivitamin gummy|Professional Serum|Multi-Action Cream|inj \(lyo\) for soln|IV/IM powd for inj|Childn nasal drops|Infant nasal drops|film-coated caplet|enteric-coated tab|pre-filled syringe|soln for infusion|powd for infusion|transdermal spray|transdermal patch|granules for susp|effervescent powd|topical soln conc|oral lyophilisate|powd for oral use|Adult nasal drops|Kids chewable tab|Vanilla oral liqd|milk powd Vanilla|infant oral drops|Plus Chewable tab|Infusion solution|Intensive lotion|Foaming cleanser|oromucosal spray|sugar-coated tab|effervescent tab|Body Moisturiser|Hydrating lotion|Medicated Lotion|Daily Face cream|Daily Oral Rinse|lyo powd for inj|Derma Rash cream|vaccine susp inj|soft gelatin cap|viscous solution|ophthalmic drops|Intensive cream|Soothing lotion|dispersible tab|film-coated tab|inhalation powd|childn granules|Gentle Cleanser|Sting-Free Oint|inhalation soln|oromucosal liqd|respirator soln|liqd-filled cap|forte oral susp|inhalation liqd|intraocular inj|IV powd for inj|Transparent gel|transdermal gel|oromucosal soln|Chewable caplet|milk powd Honey|Expectorant syr|liqd inhalation|Saline Solution|oral Suspension|powder/solution|Soothing cream|pre-filled pen|oromucosal gel|adult granules|Gentle Shampoo|Relizema cream|vaccine \(oral\)|infusion \(amp\)|nebuliser soln|Daily Moisture|vaccine \(vial\)|ear drops soln|ophth emulsion|pre-filled inj|nebulizer soln|Forte dry susp|Aerofilm gauze|sublingual tab|Micellar Water|eye & ear drop|eye suspension|infusion conc|vaccine \(inj\)|topical spray|eye/ear drops|liqd cleanser|oral granules|cleansing gel|topical cream|inj iopamidol|infusion soln|forte dry syr|dry syr Forte|eye-ear drops|oral solution|soln for inj|chewable tab|Repair cream|powd for inj|infusion bag|topical soln|topical liqd|Forte FC tab|susp for inj|topical powd|rectal cream|Foaming Wash|Ultra lotion|Daily Lotion|Forte caplet|soluble film|dental paste|facial cream|eye ointment|nail lacquer|vaccine oral|nasal spray|topical gel|ophth drops|nasal drops|softgel cap|KwikPen inj|chewing gum|Nappy Cream|Skin Lotion|Gentle Wash|Polyamp inj|rectal oint|Body Lotion|expectorant|Creamy Wash|shower pack|Moisturizer|transdermal|ophth strip|vaccine inj|IV infusion|Plus caplet|topical oil|Night Cream|Moisturiser|Conditioner|Thermometer|Liquid Soap|concentrate|intravenous|suppository|oral liquid|stain strip|oral drops|ophth soln|Childn syr|oral spray|inj \(vial\)|Skin cream|Start oint|coated tab|ophth susp|scalp soln|Hand Cream|Rescue Gel|ophth oint|Sugar-free|toothpaste|inhalation|spray powd|nasal wash|caring oil|combi pack|mouthspray|active tab|Forte drag|rectal gel|turbuhaler|Thermoscan|dental gel|irrigation|nasal drop|oral paste|suspension|wound wash|supplement|oral liqd|oral susp|oral soln|eye drops|actuation|Adult syr|inj \(amp\)|milk powd|ear drops|Ear Drop|mouthwash|Adult cap|Regen pad|FC caplet|XR-FC tab|Mouth gel|forte syr|DHA gummy|accuhaler|oral powd|cough syr|sunscreen|body wash|Forte cap|depot inj|liqd soap|forte tab|paed susp|gauze-pad|vag ovule|flash tab|liqd wash|adult tab|rapihaler|Day Cream|Injection|Plus susp|Nebuliser|sanitiser|container|infusion|cleanser|Sunblock|vag wash|infusion|oral gel|granules|liniment|Bath Oil|inj conc|evohaler|Kids syr|Gold cap|eye susp|eye oint|pastille|respules|Disp tab|hard cap|mite tab|GITS tab|band-aid|soft cap|Plus tab|dressing|solostar|orapaste|filcotab|Lip Balm|Emulsion|Eye Drop|solution|catridge|ointment|tincture|spansule|Shampoo|vag gel|vegecap|softcap|linctus|vag tab|vaccine|pessary|vegicap|topical|gummies|nebules|softgel|plaster|filmtab|implant|dry syr|minitab|eye gel|chewtab|inhaler|dry inj|emulgel|Essence|capsule|handrub|lozenge|mixture|Bandage|aerosol|pellets|FC tab|lotion|elixir|sachet|\(vial\)|ER tab|gargle|SolTab|caplet|troche|XR tab|teabag|CR tab|IV inj|EC tab|FC cap|MR tab|OD tab|bottle|DR cap|FX tab|captab|diskus|IR tab|douche|Balsam|liquid|powder|system|tablet|wafers|durule|cream|Spray|gummy|drops|Drop|enema|ovule|sheet|jelly|licap|Patch|paste|Creme|Serum|beads|paint|scrub|strip|syrup|tears|gauze|stick|powd|drag|Wash|susp|liqd|oint|supp|soap|vial|soln|oral|foam|balm|salt|swab|film|melt|pill|wipe|cap|inj|tab|gel|syr|loz|MDI|DPI|pen|oil|Kit|Jel|gum|udv|IV)[^\w]'," "+org_form+" ",re.IGNORECASE)
 #                             if(len(drug_name)>1):
 #                                 drug_match_in_form=''
 #                                 for d in drug_name:
@@ -1055,14 +1077,14 @@ def read_text_file(file):
                             if(remove_raw_num):
                                 for n in remove_raw_num:
                                     format_org=format_org.replace(n,'')
-                            format_org = format_org.strip()
-                            print("cleaned form:",format_org)
-                            format_org=format_org.strip()
+                            if(len(format_match_from_form)!=0):
+                                format_org = format_match_from_form[0]
+                            else:
+                                format_org = ''
                             std_format=search(format_org)
                             if(std_format==None):
                                 std_format=''
                             d = re.sub(r'(\d+\.?\d*)\s*/\s*(\d+\.?\d*)\s*([A-Za-z]+)', r'\1\3/\2\3', d)
-                            print("is length equal for mapping : ",is_length_to_map_equal)
                             if(len(material_list)!=0):
                                     if(len(material_list) > 1 or len(drug_name) > 1):
                                         matched_material = ""
@@ -1098,6 +1120,8 @@ def read_text_file(file):
                                             dos = ""
                                             c = ""
                                             dos,c,current_mat,current_std_mat,format_org,std_format = extract_dos_con_format_from_mat(d,con,mat,std_mat,dosage_match,con_match,dosage_match_in_mat,con_match_in_mat,material_to_map,format_org,std_format,format_match)
+                                            if(len(dos)==0 and len(c)==0):
+                                                dos,c = extract_dos_con_from_drug(dos_match_from_drug,con_match_from_drug,dos,c,drug)
                                             dos = dos.replace(' ','')
                                             dos = dos.replace(',','')
                                             c = c.replace(' ','')
@@ -1145,6 +1169,8 @@ def read_text_file(file):
                                         dos = ""
                                         c = ""
                                         dos,c,current_mat,current_std_mat,format_org,std_format = extract_dos_con_format_from_mat(d,con,mat,std_mat,dosage_match,con_match,dosage_match_in_mat,con_match_in_mat,mat_to_map_list[0],format_org,std_format,format_match)
+                                        if(len(dos)==0 and len(c)==0):
+                                            dos,c = extract_dos_con_from_drug(dos_match_from_drug,con_match_from_drug,dos,c,drug)
                                         dos = dos.replace(' ','')
                                         dos = dos.replace(',','')
                                         c = c.replace(' ','')
@@ -1161,6 +1187,8 @@ def read_text_file(file):
                                     current_std_mat = drug
                                     drug = ''
                                 material.append(current_mat)
+                                if(len(d)==0 and len(con)==0):
+                                    d,con = extract_dos_con_from_drug(dos_match_from_drug,con_match_from_drug,d,con,drug)
                                 d=d.replace(' ','')
                                 d=d.replace(',','')
                                 con=con.replace(' ','')
